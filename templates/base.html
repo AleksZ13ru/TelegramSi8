@@ -1,0 +1,114 @@
+{% load staticfiles %}
+<!doctype html>
+<html class="no-js" lang="ru">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AleksZ Board</title>
+    <link rel="stylesheet" href="{% static 'css/foundation.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/foundation-datepicker.css" %}">
+    {% block link %}
+    {% endblock %}
+</head>
+
+<body style="background: #F5F5F5">
+<div class="top-bar">
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li><a href="/">ОПЭиИТ</a></li>
+            <!--li><a href="/">Заметки</a></li>
+            <li><a href="/">Дела</a></li>
+            <li><a href="/">Кадры</a></li-->
+{#            <li><a href="{% url 'dept_calendar' %}">Календарь</a></li>#}
+            <li>
+{#                <a href="{% url 'docx_all' %}">Служебные записки</a>#}
+                {#                <ul class="menu vertical">#}
+                {#                    <li><a href="#">Все</a></li>#}
+                {#                    <li><a href="#">Актуальные</a></li>#}
+                {#                    <li><a href="{% url 'docx_list' %}">Актуальные</a></li>#}
+                {#                    <li><a href="{% url 'docx_new' %}">Новая записка</a></li>#}
+                {#                </ul>#}
+            </li>
+            <li>
+{#                <a href="{% url 'daybook_list' %}">Журнал передачи смен</a>#}
+                {#                <ul class="menu vertical">#}
+                {#                    <li><a href="#">Все</a></li>#}
+                {#                    <li><a href="#">Актуальные</a></li>#}
+                {#                    <li><a href="{% url 'daybook_list' %}">История</a></li>#}
+                {#                    <li><a href="{% url 'daybook_new' %}">Новая записка</a></li>#}
+                {#                </ul>#}
+            </li>
+
+            {#            <!--li><a href="{% url 'si8_list' %}docx_peoplewho">Машинное время (chartjs)</a></li-->#}
+            {#            <!--li><a href="{% url 'si8_d3_list' %}">Машинное время (d3)</a></li>#}
+            {#            <li><a href="{% url 'si8_c3_list' %}">Машинное время (c3)</a></li>#}
+            {#            <li><a href="{% url 'si8_parsing' %}">Парсинг</a></li-->#}
+        </ul>
+    </div>
+    <div class="top-bar-right">
+        <ul class="dropdown menu" data-dropdown-menu>
+            {#            <li>#}
+            {#                <input type="text" class="span2" id="dp1">#}
+            {#            </li>#}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'admin:index' %}">{{ user.first_name }}</a>
+                    <ul class="menu vertical">
+                        <li><a href="#">Профиль</a></li>
+                        <li><a href="{% url 'admin:logout' %}">Выйти</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a href="{% url 'admin:index' %}">Войти</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{#{% block content %} {% endblock %}#}
+
+<div class="fieldset">
+    <div class="row">
+{#    <div class="expanded row">#}
+{#        <div class="small-12 large-12 columns">#}
+            {% if user.is_authenticated %}
+                {% block content %} {% endblock %}
+            {% else %}
+{#                <a href="{% url 'login' %}">Войти</a>#}
+            {% endif %}
+{#        </div>#}
+    </div>
+</div>
+<script src="{% static 'js/vendor/jquery-3.1.0.min.js' %}"></script>
+<script src="{% static 'js/vendor/what-input.js' %}"></script>
+<script src="{% static 'js/vendor/foundation.js' %}"></script>
+
+<script src="{% static "js/vendor/foundation-datepicker.js" %}"></script>
+<script src="{% static "js/locales/foundation-datepicker.ru.js" %}"></script>
+<script>
+    $(document).foundation();
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        let link = window.location.pathname;
+        $('.menu li a[href="' + link + '"]').parent().addClass('active');
+    });
+</script>
+{#<script>#}
+{#    var now = new Date();#}
+{#    var initialDate = now.day + '-' + now.month + '-' + now.year;#}
+{#    $(function () {#}
+{#        $('#dp1').fdatepicker({#}
+{#            language: 'ru',#}
+{#            initialDate: initialDate, //'30-07-2016',#}
+{#            format: 'dd.mm.yyyy',#}
+{#            disableDblClickSelection: true#}
+{#        });#}
+{#    });#}
+{#</script>#}
+{% block script %}
+{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+{
+  "update_id": 254356659,
+  "message": {
+    "message_id": 2,
+    "from": {
+      "id": 118681325,
+      "is_bot": "False",
+      "first_name": "AleksZ",
+      "language_code": "ru"
+    },
+    "chat": {
+      "id": 118681325,
+      "first_name": "AleksZ",
+      "type": "private"
+    },
+    "date": 1520800054,
+    "text": "loop troester"}
+}

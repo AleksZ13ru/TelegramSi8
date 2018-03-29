@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{#{% load get_range %}#}
+{% block link %}
+
+{% endblock %}
+{% block content %}
+    <form class="fieldset">
+        <div class="chartjs-tooltip" id="tooltip-0"></div>
+        <div class="row">
+            <div class="small-12 large-12 columns">
+                <div>
+                    <a href="{% url 'si8_find_file' %}" class="button">Find file!</a>
+                </div>
+                <div class="callout striped table-scroll">
+                    <ul class="vertical menu" data-accordion-menu>
+                        <li>
+                            <a href="#">Готовы к парсингу ({{ listcount.ready }})</a>
+                            <ul>
+                                <table id="table-chartjs" class="hover unstriped">
+                                    <thead>
+                                    <tr>
+                                        <th>Имя</th>
+                                        <!--th width=20%>Статус</th-->
+                                        <th>Парсить</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for file in listsfile %}
+                                        {% if file.parsing_status == 0 %}
+                                            <tr>
+                                                <th>{{ file.name }}</th>
+                                                <!--th>{{ file.parsing_status }}</th-->
+                                                <th><a href="{% url 'si8_pars_file' pk=file.id %}" class="button">Парсить</a></th>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Парсинг завершен успешно ({{ listcount.ok }})</a>
+                            <ul>
+                                <table id="table-chartjs" class="hover unstriped">
+                                    <thead>
+                                    <tr>
+                                        <th>Имя</th>
+                                        <!--th width=20%>Статус</th>
+                                        <th width=20%>Парсить</th-->
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for file in listsfile %}
+                                        {% if file.parsing_status == 1 %}
+                                            <tr>
+                                                <th>{{ file.name }}</th>
+                                                <!--th>{{ file.parsing_status }}</th>
+                                                <th><a href="{% url 'si8_pars_file' pk=file.id %}" class="button">Парсить</a></th-->
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Парсинг завершен с ошибкой ({{ listcount.error }})</a>
+                            <ul>
+                                <table id="table-chartjs" class="hover unstriped">
+                                    <thead>
+                                    <tr>
+                                        <th>Имя</th>
+                                        <!--th width=20%>Статус</th>
+                                        <th width=20%>Парсить</th-->
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for file in listsfile %}
+                                        {% if file.parsing_status == 2 %}
+                                            <tr>
+                                                <th>{{ file.name }}</th>
+                                                <!--th>{{ file.parsing_status }}</th>
+                                                <th><a href="{% url 'si8_pars_file' pk=file.id %}" class="button">Парсить</a></th-->
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock content %}
+
+{% block script %}
+
+{% endblock %}
