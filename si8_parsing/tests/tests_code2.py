@@ -1,18 +1,27 @@
+import os
+
 from django.test import TestCase
-from si8_parsing.models import File
-from si8_parsing.code2 import parsing_si8
+from si8_parsing.code2 import get_hash_md5
 
 
-class ParsingSi8TestClass(TestCase):
+class Code2TestClass(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        File.objects.create(name='010318.SI8', path='/home/aleksz/PycharmProjects/DataSi8/0318/')
         pass
 
     def setUp(self):
         pass
 
-    def test_parsing_si8(self):
-        result = None
-        self.assertEqual(parsing_si8(), result)
+    def test_get_hash_md5(self):
+        result = '85bf926c4efa0b9ca0e1b96d20ad1398'
+        name = '300318-8-20.SI8'
+        path = os.getcwd() + '/si8_parsing/tests/'
+        self.maxDiff = None
+        self.assertEqual(get_hash_md5(path, name), result)
+
+    def test_get_hash_md5_none(self):
+        name = 'pure.SI8'
+        path = os.getcwd()
+        self.maxDiff = None
+        self.assertEqual(get_hash_md5(path, name), None)

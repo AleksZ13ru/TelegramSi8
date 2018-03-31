@@ -1,14 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from .code2 import findfile, parsing_si8
+from .code2 import find_file, open_files
 from .models import File, Value, Machine
 from .code.pack import repack
-
-# from . import task
-
-
-def django(request):
-    return render(request, 'si8parsing/django.html')
 
 
 def parsing(request):
@@ -21,7 +15,7 @@ def parsing(request):
 
 
 def si8_find_file(request):
-    findfile()
+    find_file()
     # task.find.delay()
     # TemplateView.as_view(template_name='si8_parsing/parsing.html')
     html = "<html><body> This is %s view</body></html>" % "hello!"
@@ -29,7 +23,7 @@ def si8_find_file(request):
 
 
 def si8_pars_file(request, pk):
-    parsing_si8(pk)
+    open_files(pk)
     # task.parsing.delay(pk)
     html = "<html><body> This is %s parsing</body></html>" % pk
     return HttpResponse(html)

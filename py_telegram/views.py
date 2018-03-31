@@ -12,29 +12,30 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
+from datetime import datetime
 
 from .utils import parse_planetpy_rss
 
 from si8_parsing.models import Machine, Value, Date
 from si8_parsing.code.pack import repack
 from .models import User, Loop
-from datetime import datetime
+
 
 TelegramBot = telepot.Bot(settings.TELEGRAM_BOT_TOKEN)
 
 logger = logging.getLogger('telegram.bot')
 
 
-def django(request):
-    return render(request, 'django.html')
+# def django(request):
+#     return render(request, 'django.html')
 
 
 def display_help(*args):
-    return render_to_string('help.md')
+    return render_to_string('py_telegram/help.md')
 
 
 def display_planetpy_feed(*args):
-    return render_to_string('feed.md', {'items': parse_planetpy_rss()})
+    return render_to_string('py_telegram/feed.md', {'items': parse_planetpy_rss()})
 
 
 def display_obr_list(telegram_id, cmd):

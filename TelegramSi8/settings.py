@@ -44,7 +44,6 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_BACKEND = my_set['CELERY_RESULT_BACKEND']
 CELERY_TASK_SERIALIZER = 'json'
 
-
 CELERY_BEAT_SCHEDULE = {
     'message_task': {
         'task': 'py_telegram.tasks.message_task',
@@ -69,7 +68,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_beat',
     'py_telegram',
-    'si8_parsing'
+    'si8_parsing',
+    'py_site'
 ]
 
 MIDDLEWARE = [
@@ -150,3 +150,5 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # - для указания папки при разворачивании сервера
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]

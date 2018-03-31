@@ -1,22 +1,19 @@
-# from django.db import transaction
 from __future__ import absolute_import
-
-from datetime import datetime
 import time
-from django.utils import timezone
-
-from .models import Folder, File, Value, Machine
 import os
 import hashlib
 from django.core.exceptions import ObjectDoesNotExist
-from .code.parsing import openfilesi8_v2
+from django.utils import timezone
+
+from .models import Folder, File, Value, Machine
+from .code.parsing import parsing_file
 
 
 # вызывать 1  раз в минуту
 # ищет в папке файлы с расширением si8,
 # если файла с таким хешем нет, то добавляет в базу - модель File
 # @shared_task
-def findfile():
+def find_file():
     folders = Folder.objects.filter(enable=True)
     for folder in folders:
         trees = os.walk(folder.path)
@@ -40,18 +37,22 @@ def findfile():
 
 
 def get_hash_md5(path, filename):
-    with open(path + filename, 'rb') as f:
-        m = hashlib.md5()
-        while True:
-            data = f.read(8192)
-            if not data:
-                break
-            m.update(data)
-        return m.hexdigest()
+    try:
+        with open(path + filename, 'rb') as f:
+            m = hashlib.md5()
+            while True:
+                data = f.read(8192)
+                if not data:
+                    break
+                m.update(data)
+            return_hash = m.hexdigest()
+    except FileNotFoundError:
+        return_hash = None
+    return return_hash
 
 
 # {'value': 51.8, 'now_date': datetime.datetime(2016, 12, 26, 7, 30), 'id_si8': 1}
-def parsing_si8(pk=None):
+def open_files(pk=None):
     if pk is None:
         files = File.objects.filter(parsing_status=0)
     else:
@@ -60,8 +61,7 @@ def parsing_si8(pk=None):
         try:
             file.parsing_status = 2
             file.save()
-            # ds = openfilesi8(file.path, file.name)
-            ds = openfilesi8_v2(file.path, file.name)
+            ds = parsing_file(file.path, file.name)
             for d in ds['bufs']:
                 try:
                     Machine.objects.get(register=d['id_si8'])
@@ -71,28 +71,9 @@ def parsing_si8(pk=None):
                     pass
             file.parsing_status = 1
             file.save()
-
-            # for d in ds:
-            #     logtime =timezone.now()
-            #     register_addr = d['id_si8']
-            #     now_date = d['now_date']  # .strftime('%m/%d/%Y %H:%M')
-            #     value = d['value']
-            #     # reg = Register.objects.get(register_addr=register_addr)
-            #     # p = PollResult(pollresult_register=reg, pollresult_time=now_date, pollresult_value=value)
-            #     # p.save()
-            #     ss = ('%s - %s' % (logtime.second, timezone.now().second))
-            #     pass
-            #     Value2.add(register=register_addr, date_now=now_date, meaning=value, time_stamp=3)
-            # file.parsing_status = 1
-            # file.save()
         except BaseException as error:
             print('An exception occurred in parsing_si8: {}'.format(error))
 
-
-# result = [{'start': 1, 'value': [1.85, 33.3, 5.55]},
-#           {'start': 6, 'value': [3.7]},
-#           {'start': 9, 'value': [11.1, 59.2, 79.55, 81.4]}
-#           ]
 
 def repack_time_line():
     trend = [0, 1.85, 33.3, 5.55, 0, 0, 3.7, 0, 0, 11.1, 59.2, 79.55, 81.4]
@@ -119,15 +100,19 @@ def repack_time_line():
     # return values
 
 
-def terminal_run():
+def main():
     while True:
-        findfile()
+        find_file()
         files = File.objects.filter(parsing_status=0)
         print('%s найдено: %d файлов' % (timezone.now(), len(files)))
         # time.sleep(5)  # 10 sec.
         for f in files:
             print('%s : %s начат разбор' % (timezone.now(), f.name))
-            parsing_si8(f.id)
+            open_files(f.id)
             print('%s : %s завершен разбор' % (timezone.now(), f.name))
         print('Пауза 300 сек.')
         time.sleep(300)  # 10 sec.
+
+
+if __name__ == '__main__':
+    main()

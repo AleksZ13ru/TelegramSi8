@@ -9,5 +9,5 @@ app_name = 'planet'
 
 urlpatterns = [
     url(r'^bot/(?P<bot_token>.+)/$', CommandReceiveView.as_view(), name='command'),
-    url(r'^$', views.django, name='planet_django')
+    # url(r'^$', views.django, name='planet_django')
 ]

@@ -16,9 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url, include
 
-
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^planet/', include('py_telegram.urls', namespace='planet')),
     url(r'^', include('si8_parsing.urls')),
+    url(r'^', include('py_site.urls'))
 ]
