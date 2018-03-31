@@ -55,6 +55,9 @@ def display_obr(telegram_id, cmd):
     date = cmd['date']
     try:
         machine = Machine.objects.get(lower=lower)
+    except ObjectDoesNotExist:
+        return 'Не найдено оорудование с указанным именем!'
+    try:
         # machine = Machine.objects.get(lower=lower)
         obj_data = Date.objects.get(date=date)
         value = Value.objects.get(register=machine.register, date=obj_data.id)
@@ -62,7 +65,7 @@ def display_obr(telegram_id, cmd):
         for s in string_value:
             result += s
     except ObjectDoesNotExist:
-        result = 'Нет данных для %s на дату %s' % (lower, date)
+        result = 'Нет данных для /{0} на дату {1}!'.format(machine.title, date)
     return result
 
 
@@ -80,7 +83,7 @@ def display_loop(telegram_id, cmd):
             if len(loops) > 0:
                 result = 'Список отслеживаемого Вами оборудования:\n\n'
                 for loop in loops:
-                    result += '/%s\n\n' % loop.machine
+                    result += '/{0}\n\n'.format(loop.machine)
             else:
                 result = 'У Вас еще не выбрано оборудования для отслеживания!'
             # result += '\n Для удаления : loop_del Name\n '
@@ -96,11 +99,11 @@ def display_loop(telegram_id, cmd):
         try:
             loop = Loop.objects.get(user=user, machine=machine)
             loop.delete()
-            result += 'Из Вашего списка отслеживания удалено:\n /%s\n' % machine_name_lower
+            result += 'Из Вашего списка отслеживания удалено:\n /{0}\n'.format(machine.title)
         except ObjectDoesNotExist:
             loop = Loop.objects.create(user=user, machine=machine)
             loop.save()
-            result = 'В Ваш список отслеживания добавлено:\n /%s\n' % machine_name_lower
+            result = 'В Ваш список отслеживания добавлено:\n /{0}\n'.format(machine.title)
     return result
 
 
@@ -111,7 +114,7 @@ def parse_cmd(cmd, cmd_dict):
     # for word in words:
     for word in words:
         try:
-            result['date'] = datetime.strptime(word, '%d-%m-%y')
+            result['date'] = datetime.strptime(word, '%d-%m-%y').date()
             result['param'].remove(word)
             continue
         except ValueError:
