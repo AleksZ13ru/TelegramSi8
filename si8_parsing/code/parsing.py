@@ -25,7 +25,8 @@ def parsing_file(foldeder, filename):
                 addr = int.from_bytes(f.read(1), byteorder='big')
                 data = f.read(4)
                 speed = struct.unpack('f', data)[0]
-                # print("Счетчик = %d, Скорость=%.2f" % (addr, speed))
+                # if addr == 128:
+                # print("Время %d:%d, Счетчик = %d, Скорость=%.2f, Data=%s" % (hour, minute, addr, speed, str(data)))
                 d1 = timezone.datetime.strptime(filename[0:6], '%d%m%y')
                 dstart = d1.replace(hour=7, minute=30)
                 date = d1.replace(hour=hour, minute=minute)

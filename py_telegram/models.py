@@ -86,7 +86,7 @@ class Message(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=6, choices=STATUS_STAT, default='READY')
-    date_status=models.DateTimeField(default=timezone.now)
+    date_status = models.DateTimeField(default=timezone.now)
     text = models.TextField(max_length=300)
 
     def __str__(self):

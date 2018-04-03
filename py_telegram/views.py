@@ -5,7 +5,7 @@ import logging
 
 import telepot
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
+# from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, JsonResponse
 from django.views.generic import View
@@ -19,7 +19,6 @@ from .utils import parse_planetpy_rss
 from si8_parsing.models import Machine, Value, Date
 from si8_parsing.code.pack import repack
 from .models import User, Loop
-
 
 TelegramBot = telepot.Bot(settings.TELEGRAM_BOT_TOKEN)
 
@@ -39,7 +38,7 @@ def display_planetpy_feed(*args):
 
 
 def display_obr_list(telegram_id, cmd):
-    machines = Machine.objects.all()
+    machines = Machine.objects.all().order_by('title')
     result = 'Список оборудования:\n\n'
     for m in machines:
         result += '/{0}\n\n'.format(m.title)
