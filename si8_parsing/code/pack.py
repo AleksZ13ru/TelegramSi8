@@ -41,9 +41,9 @@ def repack(name, date, inputs):
             stop_pos = -1
             t_line.clear()
         position += 1
-    result.append("Оборудование: %s\n" % name)
-    result.append('Дата: %s\n' % (date.date.strftime("%d %B %Y")))
-    result.append('Остановов: %d \n' % (len(r)-1))
+    result.append("Оборудование: /{0}\n").format(name)
+    result.append('Дата: {0}\n').format(date.date.strftime("%d %B %Y"))
+    result.append('Остановов: {0} \n').format(len(r)-1)
     total_l = 0
     string_l = []
     for i in r:
@@ -52,10 +52,10 @@ def repack(name, date, inputs):
         vs = 0
         for v in i['v']:
             vs = vs + v
-        string_l.append('%s - %s = %d м.' % (start_time, stop_time, vs))
+        string_l.append('{0} - {1} = {2} м.').format(start_time, stop_time, vs)
         total_l = total_l + vs
 
-    result.append('Всего: %d м.\n\n' % total_l)
+    result.append('Всего: {0} м.\n\n').format(total_l)
     # result.append()
     for i in string_l:
         result.append(i+'\n')
