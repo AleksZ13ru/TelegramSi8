@@ -3,8 +3,17 @@
 /TelegramSi8/config.py
 /celerybeat-schedule
 .idea/
+/db.sqlite3
+
+Будет удалено TelegramSi8/
+Будет удалено manage.py
+Будет удалено py_site/
+Будет удалено py_telegram/
+Будет удалено readme.txt
+Будет удалено requirements.txt
+Будет удалено si8_parsing/
+Будет удалено templates/
 Будет удалено TelegramSi8/__pycache__/
-Будет удалено db.sqlite3
 Будет удалено py_site/__pycache__/
 Будет удалено py_site/migrations/__pycache__/
 Будет удалено py_telegram/__pycache__/
@@ -12,5 +21,3 @@
 Будет удалено si8_parsing/__pycache__/
 Будет удалено si8_parsing/code/__pycache__/
 Будет удалено si8_parsing/migrations/__pycache__/
-Будет удалено templates/
-/db.sqlite3
