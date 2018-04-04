@@ -1,8 +1,9 @@
 
 /venv/
-Будет удалено .idea/
+/TelegramSi8/config.py
+/celerybeat-schedule
+.idea/
 Будет удалено TelegramSi8/__pycache__/
-Будет удалено TelegramSi8/config.py
 Будет удалено db.sqlite3
 Будет удалено py_site/__pycache__/
 Будет удалено py_site/migrations/__pycache__/
@@ -12,5 +13,4 @@
 Будет удалено si8_parsing/code/__pycache__/
 Будет удалено si8_parsing/migrations/__pycache__/
 Будет удалено templates/
-Будет удалено venv/
-/TelegramSi8/config.py
+/db.sqlite3
