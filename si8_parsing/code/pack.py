@@ -52,10 +52,10 @@ def repack(name, date, inputs):
         vs = 0
         for v in i['v']:
             vs = vs + v
-        string_l.append('{0} - {1} = {2} м.'.format(start_time, stop_time, vs))
+        string_l.append('{0} - {1} = {2:.0f} м.'.format(start_time, stop_time, vs))
         total_l = total_l + vs
 
-    result.append('Всего: {0} м.\n\n'.format(total_l))
+    result.append('Всего: {0:.0f} м.\n\n'.format(total_l))
     # result.append()
     for i in string_l:
         result.append(i+'\n')
