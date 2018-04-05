@@ -1,0 +1,62 @@
+{% load staticfiles %}
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Foundation Starter Template</title>
+    <link rel="stylesheet" href="{% static 'py_site/css/foundation.css' %}"/>
+</head>
+<body>
+<div class="top-bar">
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li class="menu-text">Site Title</li>
+            <li class="has-submenu">
+                <a href="#0">One</a>
+                <ul class="submenu menu vertical" data-submenu>
+                    <li><a href="#0">One</a></li>
+                    <li><a href="#0">Two</a></li>
+                    <li><a href="#0">Three</a></li>
+                </ul>
+            </li>
+            <li><a href="#0">Two</a></li>
+            <li><a href="#0">Three</a></li>
+        </ul>
+    </div>
+    <div class="top-bar-right">
+        <ul class="menu">
+            <li><input type="search" placeholder="Search"></li>
+            <li>
+                <button type="button" class="button">Search</button>
+            </li>
+        </ul>
+    </div>
+</div>
+<div>
+    <div class="callout large">
+        <div class="row column text-center">
+            <div class="callout">
+                <h5>This is a callout.</h5>
+                <p>It has an easy to override visual style, and is appropriately subdued.</p>
+                <a href="#">It's dangerous to go alone, take this.</a>
+            </div>
+            <div class="callout">
+                <h5>This is a callout.</h5>
+                <p>It has an easy to override visual style, and is appropriately subdued.</p>
+                <a href="#">It's dangerous to go alone, take this.</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'py_site/js/vendor/jquery.js' %}"></script>
+<script src="{% static 'py_site/js/vendor/what-input.js' %}"></script>
+<script src="{% static 'py_site/js/vendor/foundation.js' %}"></script>
+<script>
+    $(document).foundation();
+</script>
+
+</body>
+</html>
