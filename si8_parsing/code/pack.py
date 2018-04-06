@@ -42,7 +42,7 @@ def repack(name, date, inputs):
             t_line.clear()
         position += 1
     result.append("Оборудование: /{0}\n".format(name))
-    result.append('Дата: {0}\n'.format(date.date.strftime("%d %B %Y")))
+    result.append('Дата: {0}\n'.format(date.strftime("%d %B %Y")))
     result.append('Остановов: {0} \n'.format(len(r)-1))
     total_l = 0
     string_l = []

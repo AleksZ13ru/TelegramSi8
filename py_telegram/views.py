@@ -60,7 +60,7 @@ def display_obr(telegram_id, cmd):
         # machine = Machine.objects.get(lower=lower)
         obj_data = Date.objects.get(date=date)
         value = Value.objects.get(register=machine.register, date=obj_data.id)
-        string_value = repack(machine.title, value.date, value.value)
+        string_value = repack(machine.title, value.date.date, value.value)
         for s in string_value:
             result += s
     except ObjectDoesNotExist:
