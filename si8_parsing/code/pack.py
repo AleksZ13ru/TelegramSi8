@@ -25,6 +25,8 @@ def repack(name, date, inputs):
     t_line = []
     r = []
     result = []
+    max_speed = 0
+    max_speed_time = None
     for i in inputs:
         b = len(inputs)
         if i is not 0 and start_pos is -1:
@@ -43,8 +45,6 @@ def repack(name, date, inputs):
         position += 1
     total_l = 0
     string_l = []
-    max_speed = 0
-    max_speed_time = None
     summa_speed = 0
     summa_speed_count = 0
     for i in r:
@@ -53,11 +53,11 @@ def repack(name, date, inputs):
         vs = 0
         for index, v in enumerate(i['v']):
             vs = vs + v
-            summa_speed = +vs
-            summa_speed_count = +len(i['v'])
             if v >= max_speed:
                 max_speed = v
                 max_speed_time = min_to_time(i['start'] + index)
+        summa_speed = summa_speed+vs
+        summa_speed_count = summa_speed_count+len(i['v'])
         string_l.append('{0} - {1} = {2:.0f} м.'.format(start_time, stop_time, vs))
         total_l = total_l + vs
     result.append("Оборудование: /{0}\n".format(name))
