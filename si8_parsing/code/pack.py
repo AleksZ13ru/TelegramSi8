@@ -18,6 +18,8 @@ def min_to_time(sec):
     return str(h) + ':' + str(m)
 
 
+# TODO: в функции два цикла, первый формирует отрезки с указанием начала и значений скоростей\
+# второй переводит в отрезки времени и полученную длинну. Переделать в один проход
 def repack(name, date, inputs):
     position = 0
     start_pos = -1
@@ -28,7 +30,7 @@ def repack(name, date, inputs):
     max_speed = 0
     max_speed_time = None
     for i in inputs:
-        b = len(inputs)
+        # b = len(inputs)
         if i is not 0 and start_pos is -1:
             start_pos = position
         elif i is 0 and start_pos is not -1:
@@ -56,18 +58,17 @@ def repack(name, date, inputs):
             if v >= max_speed:
                 max_speed = v
                 max_speed_time = min_to_time(i['start'] + index)
-        summa_speed = summa_speed+vs
-        summa_speed_count = summa_speed_count+len(i['v'])
-        string_l.append('{0} - {1} = {2:.0f} м.'.format(start_time, stop_time, vs))
+        summa_speed = summa_speed + vs
+        summa_speed_count = summa_speed_count + len(i['v'])
+        if vs > 2:
+            string_l.append('{0} - {1} = {2:.0f} м.\n'.format(start_time, stop_time, vs))
         total_l = total_l + vs
     result.append("Оборудование: /{0}\n".format(name))
     result.append('Дата: {0}\n'.format(date.strftime("%d %B %Y")))
-    result.append('Остановов: {0} \n'.format(len(r) - 1))
+    result.append('Остановов: {0} \n'.format(len(string_l) - 1))
     result.append('Скорость:\n')
-    result.append('  средняя: {0:.0f} м/мин. \n'.format(summa_speed/summa_speed_count))
+    result.append('  средняя: {0:.0f} м/мин. \n'.format(summa_speed / summa_speed_count))
     result.append('  макс.: {0:.2f} м/мин. в {1} \n'.format(max_speed, max_speed_time))
     result.append('Всего: {0:.0f} м.\n\n'.format(total_l))
-    # result.append()
-    for i in string_l:
-        result.append(i + '\n')
+    result.extend(string_l)
     return result
