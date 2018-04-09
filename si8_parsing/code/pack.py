@@ -49,6 +49,17 @@ def repack(name, date, inputs):
     string_l = []
     summa_speed = 0
     summa_speed_count = 0
+    for index, i in enumerate(r):
+        if index == 0:
+            continue
+        pause_min = r[index]['start'] - (r[index - 1]['start'] + len(r[index - 1]['v']))
+        if pause_min < 2:
+            for j in range(pause_min):
+                if j == 0:
+                    continue
+                r[index - 1]['v'].insert(0, -1)
+            r[index - 1]['v'].extend(r[index]['v'])
+            r.remove(i)
     for i in r:
         start_time = min_to_time(i['start'])
         stop_time = min_to_time(i['start'] + len(i['v']) - 1)

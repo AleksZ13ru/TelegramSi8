@@ -16,7 +16,7 @@ from datetime import datetime
 
 from .utils import parse_planetpy_rss
 
-from si8_parsing.models import Machine, Value, Date
+from si8_parsing.models import Machine, Value, ValueChange, Date
 from si8_parsing.code.pack import repack
 from .models import User, Loop
 
@@ -63,6 +63,8 @@ def display_obr(telegram_id, cmd):
         string_value = repack(machine.title, value.date.date, value.value)
         for s in string_value:
             result += s
+        value_change = ValueChange.objects.get(machine=machine)
+        result += '\nДанные на {0}'.format(value_change.read_datetime.time().strftime('%H:%M'))
     except ObjectDoesNotExist:
         result = 'Нет данных для /{0} на дату {1}!'.format(machine.title, date)
     return result
