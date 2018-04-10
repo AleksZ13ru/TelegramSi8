@@ -34,7 +34,7 @@ def repack(name, date, inputs):
         if i is not 0 and start_pos is -1:
             start_pos = position
         elif i is 0 and start_pos is not -1:
-            stop_pos = position
+            stop_pos = position-1
         if position == len(inputs) - 1:
             stop_pos = position
         if start_pos is not -1 and stop_pos is not -1:
@@ -55,9 +55,9 @@ def repack(name, date, inputs):
         pause_min = r[index]['start'] - (r[index - 1]['start'] + len(r[index - 1]['v']))
         if pause_min < 2:
             for j in range(pause_min):
-                if j == 0:
-                    continue
-                r[index - 1]['v'].insert(0, -1)
+                # if j == 0:
+                #     continue
+                r[index - 1]['v'].insert(-1, 0)
             r[index - 1]['v'].extend(r[index]['v'])
             r.remove(i)
     for i in r:
