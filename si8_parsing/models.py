@@ -170,21 +170,13 @@ class Value(models.Model):
                                                       change_datetime=change_datetime)
             value_change.save()
         if end_date is not None:
-            # if value_change.change_datetime < end_date:
-            #     value_change.read_datetime = end_date
-            #     value_change.read_value = 0
-            # elif value_change.change_datetime == end_date:
-            #     value_change.read_datetime = end_date
-            #     value_change.read_value = value_change.change_value
-            # elif value_change.change_datetime > end_date:
-            #     pass
-            if value_change.read_datetime < end_date:
+            if value_change.change_datetime < end_date:
                 value_change.read_datetime = end_date
                 value_change.read_value = 0
-            elif value_change.read_datetime == end_date:
+            elif value_change.change_datetime == end_date:
                 value_change.read_datetime = end_date
                 value_change.read_value = value_change.change_value
-            elif value_change.read_datetime > end_date:
+            elif value_change.change_datetime > end_date:
                 pass
             value_change.save()
         # Register.last_update(register=register.pk, time=date_now, value=meaning)
