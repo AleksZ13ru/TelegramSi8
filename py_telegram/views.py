@@ -177,7 +177,7 @@ class CommandReceiveView(View):
                 else:
                     TelegramBot.sendMessage(chat_id, 'Не удалось распознать запрос.')
             elif user[0].role == 'BLACK':
-                TelegramBot.sendMessage(chat_id, 'Ваша профиль занесен в черный список!')
+                TelegramBot.sendMessage(chat_id, 'Ваша профиль не авторизован!')
 
         return JsonResponse({}, status=200)
 

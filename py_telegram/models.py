@@ -19,7 +19,7 @@ class User(models.Model):
 
     first_name = models.CharField(max_length=100)
     telegram_id = models.IntegerField()
-    role = models.CharField(max_length=8, choices=ROLE_STAT, default='USER')
+    role = models.CharField(max_length=8, choices=ROLE_STAT, default='BLACK')
 
     def __str__(self):
         return self.first_name
