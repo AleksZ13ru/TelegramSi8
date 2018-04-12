@@ -103,7 +103,7 @@ class Value(models.Model):
     @staticmethod
     def add(register=None, date_now=timezone.now(), flag=FLAG_STAT[0][0], time_stamp=None, meaning=None, end_date=None):
         pass
-        if register == 128:
+        if register == 198:
             a = 1
             pass
         current_date = date_now.replace(hour=0, minute=0, second=0, microsecond=0)
