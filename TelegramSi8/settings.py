@@ -26,6 +26,8 @@ SECRET_KEY = my_set['SECRET_KEY']
 
 TELEGRAM_BOT_TOKEN = my_set['TELEGRAM_BOT_TOKEN']
 
+VIBER_BOT_TOKEN = my_set['VIBER_BOT_TOKEN']
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = my_set['DEBUG']
 
@@ -68,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_beat',
     'py_telegram',
+    'py_viber',
     'si8_parsing',
     'py_site'
 ]
