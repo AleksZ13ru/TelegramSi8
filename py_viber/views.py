@@ -37,6 +37,7 @@ def display_obr_list(telegram_id, cmd):
     result += '\n Вы можете указать дату в формате: Troester 13-03-18.\n'
     return result
 
+
 def display_obr(telegram_id, cmd):
     result = ''
     lower = cmd['name']
@@ -60,7 +61,7 @@ def display_obr(telegram_id, cmd):
 
 
 def set_webhook(viber):
-    viber.set_webhook('https://483e92c6.ngrok.io/')
+    viber.set_webhook(settings.VIBER_BOT_WEBHOOK)
 
 
 # set_webhook(viber)

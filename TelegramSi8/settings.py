@@ -27,6 +27,7 @@ SECRET_KEY = my_set['SECRET_KEY']
 TELEGRAM_BOT_TOKEN = my_set['TELEGRAM_BOT_TOKEN']
 
 VIBER_BOT_TOKEN = my_set['VIBER_BOT_TOKEN']
+VIBER_BOT_WEBHOOK=my_set['VIBER_BOT_WEBHOOK']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = my_set['DEBUG']
