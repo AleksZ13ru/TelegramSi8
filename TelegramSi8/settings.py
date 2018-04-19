@@ -53,7 +53,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 10.0
     },
     'message_viber_task': {
-        'task': 'py_viber.tasks.message_task',
+        'task': 'py_viber.tasks.message_viber_task',
         'schedule': 10.0
     },
     'loop_task': {
