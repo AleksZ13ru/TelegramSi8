@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^viber/', include('py_viber.urls', namespace='viber')),
     # url(r'^', include('py_viber.urls', namespace='viber')),
     # url(r'^', include('si8_parsing.urls')),
-    # url(r'^', include('py_site.urls'))
+    url(r'^', include('py_site.urls'))
 ]
