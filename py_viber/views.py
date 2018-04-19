@@ -1,3 +1,7 @@
+import sched
+import threading
+import time
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseForbidden, JsonResponse
 from django.views.generic import View
@@ -64,7 +68,10 @@ def set_webhook(viber):
     viber.set_webhook(settings.VIBER_BOT_WEBHOOK)
 
 
-# set_webhook(viber)
+scheduler = sched.scheduler(time.time, time.sleep)
+scheduler.enter(5, 1, set_webhook, (viber,))
+t = threading.Thread(target=scheduler.run)
+t.start()
 
 
 def request_headers(request):
