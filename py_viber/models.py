@@ -13,13 +13,17 @@ class User(models.Model):
         ('USER', 'User'),
         ('SU_USER', 'Superuser'),
         ('NEW_USER', 'New user'),
+        ('VALID', 'Valid user'),        # пользователь ввел адрес почты, ожидает проверки
+        ('VALID_GOOD', 'Valid good'),   # проверка пройдена, ожидается отправка сообщения о завершении проверки
+        ('SU_VALID', 'Super valid user'),  # администратор, для принятия новых пользователей
         ('ADMIN', 'Admin'),
-        ('BLACK', 'Blacklist user')
+        ('BLACK', 'Blacklist user')     # черный список пользователей
     )
 
     first_name = models.CharField(max_length=100)
     viber_id = models.CharField(max_length=100)
-    role = models.CharField(max_length=8, choices=ROLE_STAT, default='BLACK')
+    role = models.CharField(max_length=8, choices=ROLE_STAT, default='NEW_USER')
+    email = models.EmailField(blank=True)
 
     def __str__(self):
         return self.first_name
@@ -75,19 +79,19 @@ class User(models.Model):
 #         return '%s: %s' % (self.user, self.machine)
 #
 #
-# class Message(models.Model):
-#     class Meta:
-#         verbose_name = "Сообщение"
-#         verbose_name_plural = "Сообщения"
-#
-#     STATUS_STAT = (
-#         ('READY', 'Ждет отправления'),
-#         ('POST', 'Отправлено')
-#     )
-#     user = models.ForeignKey(User, on_delete=models.PROTECT)
-#     status = models.CharField(max_length=6, choices=STATUS_STAT, default='READY')
-#     date_status = models.DateTimeField(default=timezone.now)
-#     text = models.TextField(max_length=300)
-#
-#     def __str__(self):
-#         return '%s: %s' % (self.user, self.status)
+class Message(models.Model):
+    class Meta:
+        verbose_name = "Сообщение"
+        verbose_name_plural = "Сообщения"
+
+    STATUS_STAT = (
+        ('READY', 'Ждет отправления'),
+        ('POST', 'Отправлено')
+    )
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    status = models.CharField(max_length=6, choices=STATUS_STAT, default='READY')
+    date_status = models.DateTimeField(default=timezone.now)
+    text = models.TextField(max_length=300)
+
+    def __str__(self):
+        return '%s: %s' % (self.user, self.status)

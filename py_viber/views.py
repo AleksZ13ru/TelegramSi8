@@ -17,7 +17,7 @@ from viberbot.api.viber_requests import ViberMessageRequest
 from viberbot.api.viber_requests import ViberSubscribedRequest
 from viberbot.api.viber_requests import ViberUnsubscribedRequest
 
-from py_viber.models import User
+from py_viber.models import User, Message
 from si8_parsing.models import Machine, Value, ValueChange, Date
 from si8_parsing.code.pack import repack
 
@@ -66,6 +66,7 @@ def set_webhook(viber):
 
 # set_webhook(viber)
 
+
 def request_headers(request):
     headers = {}
     for header, value in request.META.items():
@@ -75,6 +76,15 @@ def request_headers(request):
         headers[header] = value
 
     return headers
+
+
+def find_email(cmd):
+    result = None
+    words = cmd.lower().lstrip('/').split()
+    for word in words:
+        if word.find('@') != -1:
+            result = word
+    return result
 
 
 def parse_cmd(cmd, cmd_dict):
@@ -132,8 +142,29 @@ class CommandReceiveView(View):
         if isinstance(viber_request, ViberMessageRequest):
             user_viber_id = viber_request.sender.id
             user_first_name = viber_request.sender.name
-            user = User.objects.get_or_create(viber_id=user_viber_id, first_name=user_first_name)
-            if user[0].role == 'USER' or user[0].role == 'SU_USER':
+            users = User.objects.get_or_create(viber_id=user_viber_id, first_name=user_first_name)
+            user = users[0]
+            if user.role == 'NEW_USER':
+                if user.email == '':
+                    email = find_email(viber_request.message.text)
+                    if email is None:
+                        text = "Для получения данных из данного чата, необходима авторизация.\n " \
+                               "Пожалуйста отправьте сообщение с указанием рабочей почты для Вашей регистрации."
+                    else:
+                        user.email = email
+                        user.role = 'VALID'
+                        user.save()
+                        su_valids = User.objects.get(role='SU_VALID')
+                        for su in su_valids:
+                            Message.objects.create(user=su,
+                                                   text='Новый пользователь! {0} : {1}\n Добавить клавиатуру действий'
+                                                   .format(user.first_name, user.email))
+                        text = "От Вас получен адрес электонной почты\n " \
+                               "После подтверждения администратором, Вы сможете получать информацию из данного чата."
+                else:
+                    text = "Ваша учетная запись находится на проверке!"
+                viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
+            elif user.role == 'USER' or user.role == 'SU_USER':
                 # message = viber_request.message
                 cmd = parse_cmd(viber_request.message.text, commands)
                 func = commands.get(cmd['cmd'])
@@ -145,7 +176,7 @@ class CommandReceiveView(View):
                 else:
                     viber.send_messages(to=viber_request.sender.id,
                                         messages=[TextMessage(text="Не удалось распознать запрос.")])
-            elif user[0].role == 'BLACK':
+            elif user.role == 'BLACK':
                 viber.send_messages(to=viber_request.sender.id,
                                     messages=[TextMessage(text="Ваша профиль не авторизован!")])
         elif isinstance(viber_request, ViberSubscribedRequest):
