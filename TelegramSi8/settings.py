@@ -27,7 +27,7 @@ SECRET_KEY = my_set['SECRET_KEY']
 TELEGRAM_BOT_TOKEN = my_set['TELEGRAM_BOT_TOKEN']
 
 VIBER_BOT_TOKEN = my_set['VIBER_BOT_TOKEN']
-VIBER_BOT_WEBHOOK=my_set['VIBER_BOT_WEBHOOK']
+VIBER_BOT_WEBHOOK = my_set['VIBER_BOT_WEBHOOK']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = my_set['DEBUG']
@@ -50,6 +50,10 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
     'message_task': {
         'task': 'py_telegram.tasks.message_task',
+        'schedule': 10.0
+    },
+    'message_viber_task': {
+        'task': 'py_viber.tasks.message_task',
         'schedule': 10.0
     },
     'loop_task': {

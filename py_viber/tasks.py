@@ -15,7 +15,7 @@ bot_configuration = BotConfiguration(name='SKableBot',
 viber = Api(bot_configuration)
 
 
-@shared_task(name='py_viber.tasks.message_task')
+@shared_task(name='py_viber.tasks.message_viber_task')
 def message_task():
     messages = Message.objects.filter(status='READY')
     for message in messages:
