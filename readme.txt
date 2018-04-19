@@ -32,3 +32,6 @@ sudo rabbitmqctl set_permissions -p myvhost celeryuser ".*" ".*" ".*"
 проверьте настройки часового пояса
 
 -A TelegramSi8 beat -l info --scheduler django_celery_beat.schedulers.DatabaseScheduler
+
+git checkout master
+git merge viber
