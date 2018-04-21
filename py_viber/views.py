@@ -1,7 +1,9 @@
+import json
 import sched
 import threading
 import time
 
+import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseForbidden, JsonResponse
 from django.views.generic import View
@@ -10,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.shortcuts import render
 from requests import Response
+from requests.exceptions import ConnectionError
 from datetime import datetime
 
 from viberbot import Api
@@ -64,8 +67,26 @@ def display_obr(telegram_id, cmd):
     return result
 
 
+def ngrock_https():
+    url = None
+    try:
+        response = requests.get('http://127.0.0.1:4040/api/tunnels')
+        request_dict = json.loads(response.content.decode('utf-8'))
+        tunnels = request_dict['tunnels']
+        for tunnel in tunnels:
+            if tunnel['proto'] == "https":
+                url = tunnel['public_url']
+    except ConnectionError:
+        print('ConnectionError')
+    return url
+
+
 def set_webhook(viber):
-    viber.set_webhook(settings.VIBER_BOT_WEBHOOK)
+    url = ngrock_https()+'/viber/bot/'
+    if url is not None:
+        viber.set_webhook(url)
+    else:
+        viber.set_webhook(settings.VIBER_BOT_WEBHOOK)
 
 
 scheduler = sched.scheduler(time.time, time.sleep)
