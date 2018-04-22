@@ -288,9 +288,9 @@ class CommandReceiveView(View):
             elif user.role == 'BLACK':
                 viber.send_messages(to=viber_request.sender.id,
                                     messages=[TextMessage(text="Ваша профиль не авторизован!")])
-            else:
-                viber.send_messages(to=viber_request.sender.id,
-                                    messages=[TextMessage(text="Не удалось распознать запрос.")])
+            # else:
+            #     viber.send_messages(to=viber_request.sender.id,
+            #                         messages=[TextMessage(text="Не удалось распознать запрос.")])
         elif isinstance(viber_request, ViberSubscribedRequest):
             viber.send_messages(viber_request.user.id, [
                 TextMessage(text="thanks for subscribing!")
