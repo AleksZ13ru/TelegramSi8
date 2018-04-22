@@ -237,9 +237,9 @@ class CommandReceiveView(View):
                     mess = func(cmd)
                     viber.send_messages(to=viber_request.sender.id,
                                         messages=[TextMessage(text=mess['text'])])
-                else:
-                    viber.send_messages(to=viber_request.sender.id,
-                                        messages=[TextMessage(text="Не удалось распознать запрос.")])
+                # else:
+                #     viber.send_messages(to=viber_request.sender.id,
+                #                         messages=[TextMessage(text="Не удалось распознать запрос.")])
 
             elif user.role == 'NEW_USER':
                 if user.email == '':
@@ -255,7 +255,7 @@ class CommandReceiveView(View):
                         user.email = email
                         user.role = 'VALID'
                         user.save()
-                        su_valids = User.objects.get(role='SU_VALID')
+                        su_valids = User.objects.filter(role='SU_VALID')
                         for su in su_valids:
                             Message.objects.create(user=su,
                                                    text='Новый пользователь! {0} : {1}\n Добавить клавиатуру действий'
@@ -273,7 +273,7 @@ class CommandReceiveView(View):
                 # keymess = KeyboardMessage(keyboard=key)
                 # mess = [TextMessage(text=text), keymess]
                 viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
-            elif user.role == 'USER' or user.role == 'SU_USER':
+            if user.role == 'USER' or user.role == 'SU_USER' or user.role == 'SU_VALID':
                 # message = viber_request.message
                 cmd = parse_user_cmd(viber_request.message.text, commands_user)
                 func = commands_user.get(cmd['cmd'])
@@ -288,6 +288,9 @@ class CommandReceiveView(View):
             elif user.role == 'BLACK':
                 viber.send_messages(to=viber_request.sender.id,
                                     messages=[TextMessage(text="Ваша профиль не авторизован!")])
+            else:
+                viber.send_messages(to=viber_request.sender.id,
+                                    messages=[TextMessage(text="Не удалось распознать запрос.")])
         elif isinstance(viber_request, ViberSubscribedRequest):
             viber.send_messages(viber_request.user.id, [
                 TextMessage(text="thanks for subscribing!")
