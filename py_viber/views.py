@@ -264,15 +264,15 @@ class CommandReceiveView(View):
                                "После подтверждения администратором, Вы сможете получать информацию из данного чата."
                 else:
                     text = "Ваша учетная запись находится на проверке!"
-                key = {'Type': 'keyboard', 'Buttons': [
-                    {'ActionType': 'reply', 'ActionBody': 'add', 'Text': 'Добавить пользователя'},
-                    {'ActionType': 'reply', 'ActionBody': 'black', 'Text': 'В черный список'},
-                    {'ActionType': 'reply', 'ActionBody': 'pausa', 'Text': 'Отложить решение'},
-
-                ]}
-                keymess = KeyboardMessage(keyboard=key)
-                mess = [TextMessage(text=text), keymess]
-                viber.send_messages(to=viber_request.sender.id, messages=mess)
+                # key = {'Type': 'keyboard', 'Buttons': [
+                #     {'ActionType': 'reply', 'ActionBody': 'add', 'Text': 'Добавить пользователя'},
+                #     {'ActionType': 'reply', 'ActionBody': 'black', 'Text': 'В черный список'},
+                #     {'ActionType': 'reply', 'ActionBody': 'pausa', 'Text': 'Отложить решение'},
+                #
+                # ]}
+                # keymess = KeyboardMessage(keyboard=key)
+                # mess = [TextMessage(text=text), keymess]
+                viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
             elif user.role == 'USER' or user.role == 'SU_USER':
                 # message = viber_request.message
                 cmd = parse_user_cmd(viber_request.message.text, commands_user)
