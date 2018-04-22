@@ -255,11 +255,11 @@ class CommandReceiveView(View):
                         user.email = email
                         user.role = 'VALID'
                         user.save()
-                        su_valids = User.objects.filter(role='SU_VALID')
-                        for su in su_valids:
-                            Message.objects.create(user=su,
-                                                   text='Новый пользователь! {0} : {1}\n Добавить клавиатуру действий'
-                                                   .format(user.first_name, user.email))
+                        # su_valids = User.objects.filter(role='SU_VALID')
+                        # for su in su_valids:
+                        #     Message.objects.create(user=su,
+                        #                            text='Новый пользователь! {0} : {1}\n Добавить клавиатуру действий'
+                        #                            .format(user.first_name, user.email))
                         text = "От Вас получен адрес электонной почты\n " \
                                "После подтверждения администратором, Вы сможете получать информацию из данного чата."
                 else:
