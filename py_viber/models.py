@@ -14,6 +14,7 @@ class User(models.Model):
         ('SU_USER', 'Superuser'),
         ('NEW_USER', 'New user'),
         ('VALID', 'Valid user'),        # пользователь ввел адрес почты, ожидает проверки
+        ('VALID_VERIF', 'Valid user verif'),  # пользователь ожидает решение проверки
         ('VALID_GOOD', 'Valid good'),   # проверка пройдена, ожидается отправка сообщения о завершении проверки
         ('SU_VALID', 'Super valid user'),  # администратор, для принятия новых пользователей
         ('ADMIN', 'Admin'),
@@ -22,7 +23,7 @@ class User(models.Model):
 
     first_name = models.CharField(max_length=100)
     viber_id = models.CharField(max_length=100)
-    role = models.CharField(max_length=8, choices=ROLE_STAT, default='NEW_USER')
+    role = models.CharField(max_length=16, choices=ROLE_STAT, default='NEW_USER')
     email = models.EmailField(blank=True)
 
     def __str__(self):

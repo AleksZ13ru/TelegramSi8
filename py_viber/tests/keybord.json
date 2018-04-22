@@ -1,0 +1,12 @@
+{
+  "Type": "keyboard",
+  "DefaultHeight": "true",
+  "Buttons": [
+    {
+      "ActionType": "reply",
+      "ActionBody": "reply to me",
+      "Text": "Key text",
+      "TextSize": "regular"
+    }
+  ]
+}

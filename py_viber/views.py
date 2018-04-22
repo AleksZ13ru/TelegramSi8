@@ -17,6 +17,7 @@ from datetime import datetime
 
 from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
+from viberbot.api.messages import KeyboardMessage
 from viberbot.api.messages.text_message import TextMessage
 from viberbot.api.viber_requests import ViberConversationStartedRequest
 from viberbot.api.viber_requests import ViberFailedRequest
@@ -82,17 +83,17 @@ def ngrock_https():
 
 
 def set_webhook(viber):
-    url = ngrock_https()+'/viber/bot/'
+    url = ngrock_https() + '/viber/bot/'
     if url is not None:
         viber.set_webhook(url)
     else:
         viber.set_webhook(settings.VIBER_BOT_WEBHOOK)
 
 
-scheduler = sched.scheduler(time.time, time.sleep)
-scheduler.enter(5, 1, set_webhook, (viber,))
-t = threading.Thread(target=scheduler.run)
-t.start()
+# scheduler = sched.scheduler(time.time, time.sleep)
+# scheduler.enter(5, 1, set_webhook, (viber,))
+# t = threading.Thread(target=scheduler.run)
+# t.start()
 
 
 def request_headers(request):
@@ -115,7 +116,7 @@ def find_email(cmd):
     return result
 
 
-def parse_cmd(cmd, cmd_dict):
+def parse_user_cmd(cmd, cmd_dict):
     result = {'cmd': None, 'name': None, 'date': None, 'param': None}  # date, name, cmd, param
     words = cmd.lower().lstrip('/').split()
     result['param'] = words.copy()
@@ -150,18 +151,75 @@ def parse_cmd(cmd, cmd_dict):
     return result
 
 
+def valid(cmd):
+    text = ''
+    key = {'Type': 'keyboard', 'Buttons': []}
+    try:
+        user = None
+        if cmd['viber_id'] is not None:
+            user = User.objects.get(viber_id=cmd['viber_id'], role='VALID_VERIF')
+    except ObjectDoesNotExist:
+        user = None
+    if user is not None:
+        if cmd['cmd'] == 'add':
+            user.role = 'VALID_GOOD'
+            user.save()
+            key = {'Type': 'keyboard', 'Buttons': []}
+            text = 'Пользователю {0} разрешен доступ'.format(user.first_name)
+        elif cmd['cmd'] == 'black':
+            user.role = 'BLACK'
+            user.save()
+            key = {'Type': 'keyboard', 'Buttons': []}
+            text = 'Пользователь {0} занесен в черный список!'.format(user.first_name)
+
+    if cmd['cmd'] == 'pausa':
+        key = {'Type': 'keyboard', 'Buttons': [{'ActionBody': 'valid_list', 'Text': 'Список заявок'}]}
+        text = 'Не забудьте проверить список заявок!'
+    elif cmd['cmd'] == 'list_valid':
+        key = {'Type': 'keyboard', 'Buttons': []}
+        text = 'Список пользователей для подтверждения!'
+    return {'text': text, 'key': key}
+
+
+def parse_valid_cmd(cmd, cmd_dict):
+    result = {'cmd': None, 'viber_id': None}
+    words = cmd.lstrip('/').split()
+    for word in words:
+        keys = cmd_dict.keys()
+        try:
+            for key in keys:
+                if word == key:
+                    result['cmd'] = key
+                    continue
+        except KeyError:
+            pass
+        try:
+            user = User.objects.get(viber_id=word, role='VALID_VERIF')
+            result['viber_id'] = user.viber_id
+        except ObjectDoesNotExist:
+            pass
+    return result
+
+
 class CommandReceiveView(View):
     def post(self, request):
         if not viber.verify_signature(request.body, request_headers(request).get('X-Viber-Content-Signature')):
             return JsonResponse({}, status=403)
 
-        commands = {
+        commands_user = {
             # 'start': display_help,
             # 'help': display_help,
             # 'feed': display_planetpy_feed,
             'list': display_obr_list,
             'obr': display_obr,
             # 'loop': display_loop,
+        }
+
+        commands_valid = {
+            'add': valid,
+            'black': valid,
+            'pausa': valid
+
         }
 
         # this library supplies a simple way to receive a request object
@@ -172,12 +230,27 @@ class CommandReceiveView(View):
             user_first_name = viber_request.sender.name
             users = User.objects.get_or_create(viber_id=user_viber_id, first_name=user_first_name)
             user = users[0]
-            if user.role == 'NEW_USER':
+            if user.role == 'SU_VALID':
+                cmd = parse_valid_cmd(viber_request.message.text, commands_valid)
+                func = commands_valid.get(cmd['cmd'])
+                if func:
+                    mess = func(cmd)
+                    viber.send_messages(to=viber_request.sender.id,
+                                        messages=[TextMessage(text=mess['text'])])
+                else:
+                    viber.send_messages(to=viber_request.sender.id,
+                                        messages=[TextMessage(text="Не удалось распознать запрос.")])
+
+            elif user.role == 'NEW_USER':
                 if user.email == '':
                     email = find_email(viber_request.message.text)
                     if email is None:
                         text = "Для получения данных из данного чата, необходима авторизация.\n " \
                                "Пожалуйста отправьте сообщение с указанием рабочей почты для Вашей регистрации."
+
+                        # key = json.dumps(key)
+                        # message = KeyboardMessage(keyboard=key)
+                        # viber.send_messages(to=viber_request.sender.id, messages=message)
                     else:
                         user.email = email
                         user.role = 'VALID'
@@ -191,11 +264,19 @@ class CommandReceiveView(View):
                                "После подтверждения администратором, Вы сможете получать информацию из данного чата."
                 else:
                     text = "Ваша учетная запись находится на проверке!"
-                viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
+                key = {'Type': 'keyboard', 'Buttons': [
+                    {'ActionType': 'reply', 'ActionBody': 'add', 'Text': 'Добавить пользователя'},
+                    {'ActionType': 'reply', 'ActionBody': 'black', 'Text': 'В черный список'},
+                    {'ActionType': 'reply', 'ActionBody': 'pausa', 'Text': 'Отложить решение'},
+
+                ]}
+                keymess = KeyboardMessage(keyboard=key)
+                mess = [TextMessage(text=text), keymess]
+                viber.send_messages(to=viber_request.sender.id, messages=mess)
             elif user.role == 'USER' or user.role == 'SU_USER':
                 # message = viber_request.message
-                cmd = parse_cmd(viber_request.message.text, commands)
-                func = commands.get(cmd['cmd'])
+                cmd = parse_user_cmd(viber_request.message.text, commands_user)
+                func = commands_user.get(cmd['cmd'])
                 if func:
                     # message = viber_request.message
                     # lets echo back
