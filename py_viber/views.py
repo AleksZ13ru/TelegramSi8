@@ -151,32 +151,29 @@ def parse_user_cmd(cmd, cmd_dict):
     return result
 
 
-def valid(cmd):
+def valid(cmd, user_id=None):
     text = ''
-    key = {'Type': 'keyboard', 'Buttons': []}
+    key = None
     try:
         user = None
-        if cmd['viber_id'] is not None:
-            user = User.objects.get(viber_id=cmd['viber_id'], role='VALID_VERIF')
+        if user_id is not None:
+            user = User.objects.get(viber_id=user_id, role='NEW_USER')
     except ObjectDoesNotExist:
         user = None
     if user is not None:
-        if cmd['cmd'] == 'add':
+        if cmd == 'add':
             user.role = 'VALID_GOOD'
             user.save()
-            key = {'Type': 'keyboard', 'Buttons': []}
             text = 'Пользователю {0} разрешен доступ'.format(user.first_name)
-        elif cmd['cmd'] == 'black':
+        elif cmd == 'black':
             user.role = 'BLACK'
             user.save()
-            key = {'Type': 'keyboard', 'Buttons': []}
             text = 'Пользователь {0} занесен в черный список!'.format(user.first_name)
 
-    if cmd['cmd'] == 'pausa':
+    if cmd == 'pausa':
         key = {'Type': 'keyboard', 'Buttons': [{'ActionBody': 'valid_list', 'Text': 'Список заявок'}]}
         text = 'Не забудьте проверить список заявок!'
-    elif cmd['cmd'] == 'list_valid':
-        key = {'Type': 'keyboard', 'Buttons': []}
+    elif cmd == 'list_valid':
         text = 'Список пользователей для подтверждения!'
     return {'text': text, 'key': key}
 
@@ -194,11 +191,25 @@ def parse_valid_cmd(cmd, cmd_dict):
         except KeyError:
             pass
         try:
-            user = User.objects.get(viber_id=word, role='VALID_VERIF')
+            user = User.objects.get(viber_id=word, role='NEW_USER')
             result['viber_id'] = user.viber_id
         except ObjectDoesNotExist:
             pass
     return result
+
+
+def key_valid_create(user_id, name):
+    commands = {'add': 'Добавить пользователя',
+                'black': 'В черный список',
+                'pausa': 'Отложить решение'}
+    buttons = []
+    for command in commands:
+        button = {'ActionBody': '{0} {1}'.format(command, user_id),
+                  'Text': '{0} {1}'.format(commands[command], name)}
+        buttons.append(button)
+    # sorted(buttons, key=lambda x: sorted(x.keys()))
+    key = {'Type': 'keyboard', 'Buttons': buttons}
+    return key
 
 
 class CommandReceiveView(View):
@@ -218,7 +229,8 @@ class CommandReceiveView(View):
         commands_valid = {
             'add': valid,
             'black': valid,
-            'pausa': valid
+            'pausa': valid,
+            'list_valid': valid,
 
         }
 
@@ -234,7 +246,7 @@ class CommandReceiveView(View):
                 cmd = parse_valid_cmd(viber_request.message.text, commands_valid)
                 func = commands_valid.get(cmd['cmd'])
                 if func:
-                    mess = func(cmd)
+                    mess = func(cmd['cmd'], cmd['viber_id'])
                     viber.send_messages(to=viber_request.sender.id,
                                         messages=[TextMessage(text=mess['text'])])
                 # else:
@@ -247,39 +259,28 @@ class CommandReceiveView(View):
                     if email is None:
                         text = "Для получения данных из данного чата, необходима авторизация.\n " \
                                "Пожалуйста отправьте сообщение с указанием рабочей почты для Вашей регистрации."
-
-                        # key = json.dumps(key)
-                        # message = KeyboardMessage(keyboard=key)
-                        # viber.send_messages(to=viber_request.sender.id, messages=message)
+                        viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
                     else:
                         user.email = email
-                        user.role = 'VALID'
                         user.save()
-                        # su_valids = User.objects.filter(role='SU_VALID')
-                        # for su in su_valids:
-                        #     Message.objects.create(user=su,
-                        #                            text='Новый пользователь! {0} : {1}\n Добавить клавиатуру действий'
-                        #                            .format(user.first_name, user.email))
                         text = "От Вас получен адрес электонной почты\n " \
                                "После подтверждения администратором, Вы сможете получать информацию из данного чата."
+                        viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
+
+                        su_valids = User.objects.filter(role='SU_VALID')
+                        for su in su_valids:
+                            su_text = 'Пользователь:{0} указал почту: {1} при регистрации! \
+                                    Добавить его в чат?'.format(user.first_name, user.email)
+                            su_key = key_valid_create(user.viber_id, user.first_name)
+                            viber.send_messages(to=su.viber_id, messages=[TextMessage(text=su_text, keyboard=su_key)])
+                            # Message.objects.create(user=su, text=su_text, key=su_key)
                 else:
                     text = "Ваша учетная запись находится на проверке!"
-                # key = {'Type': 'keyboard', 'Buttons': [
-                #     {'ActionType': 'reply', 'ActionBody': 'add', 'Text': 'Добавить пользователя'},
-                #     {'ActionType': 'reply', 'ActionBody': 'black', 'Text': 'В черный список'},
-                #     {'ActionType': 'reply', 'ActionBody': 'pausa', 'Text': 'Отложить решение'},
-                #
-                # ]}
-                # keymess = KeyboardMessage(keyboard=key)
-                # mess = [TextMessage(text=text), keymess]
-                viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
+                    viber.send_messages(to=viber_request.sender.id, messages=[TextMessage(text=text)])
             if user.role == 'USER' or user.role == 'SU_USER' or user.role == 'SU_VALID':
-                # message = viber_request.message
                 cmd = parse_user_cmd(viber_request.message.text, commands_user)
                 func = commands_user.get(cmd['cmd'])
                 if func:
-                    # message = viber_request.message
-                    # lets echo back
                     text = func(user_viber_id, cmd)
                     viber.send_messages(viber_request.sender.id, messages=[TextMessage(text=text)])
                 else:

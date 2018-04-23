@@ -18,7 +18,10 @@ viber = Api(bot_configuration)
 def message_task():
     messages = Message.objects.filter(status='READY')
     for message in messages:
-        viber.send_messages(to=message.user.viber_id, messages=[TextMessage(text=message.text)])
+        if message.key is not None:
+            viber.send_messages(to=message.user.viber_id, messages=[TextMessage(text=message.text, keyboard=message.key)])
+        else:
+            viber.send_messages(to=message.user.viber_id, messages=[TextMessage(text=message.text)])
         message.status = 'POST'
         message.date_status = timezone.now()
         message.save()

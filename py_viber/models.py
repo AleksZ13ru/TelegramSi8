@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils import timezone
 # from si8_parsing.models import Machine
+from django.contrib.postgres.fields import JSONField
 
 
 class User(models.Model):
@@ -93,6 +94,7 @@ class Message(models.Model):
     status = models.CharField(max_length=6, choices=STATUS_STAT, default='READY')
     date_status = models.DateTimeField(default=timezone.now)
     text = models.TextField(max_length=300)
+    key = JSONField(null=True, blank=True)
 
     def __str__(self):
         return '%s: %s' % (self.user, self.status)

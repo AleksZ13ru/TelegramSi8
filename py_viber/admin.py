@@ -7,7 +7,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('user', 'status', 'date_status', 'text')
+    list_display = ('user', 'status', 'date_status', 'text', 'key')
     list_filter = ('user', 'status')
 
 

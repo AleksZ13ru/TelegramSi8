@@ -21,3 +21,7 @@
 Будет удалено si8_parsing/__pycache__/
 Будет удалено si8_parsing/code/__pycache__/
 Будет удалено si8_parsing/migrations/__pycache__/
+Будет удалено py_site/static/
+Будет удалено py_viber/__pycache__/
+Будет удалено py_viber/migrations/__pycache__/
+!/celerybeat-schedule
