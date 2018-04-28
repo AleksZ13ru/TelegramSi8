@@ -3,5 +3,5 @@ requests==2.18.4
 telepot==12.6
 viberbot==1.0.11
 celery==4.1.0
-django-celery-beat=1.1.1
 psycopg2==2.7.4
+sqlalchemy==1.2.7

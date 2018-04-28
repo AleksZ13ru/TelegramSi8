@@ -7,6 +7,7 @@ from py_viber.models import User, Message
 
 from django.conf import settings
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 bot_configuration = BotConfiguration(name='SKableBot',
                                      avatar='http://viber.com/avatar.jpg',
@@ -42,29 +43,34 @@ ROLE_STAT = (
 
 @shared_task(name='py_viber.tasks.message_viber_create')
 def message_create():
-    users_valid = User.objects.filter(role='VALID')
-    users_su_valid = User.objects.filter(role='SU_VALID')[0]
-    for user in users_valid:
-        text = 'Пользователь:{0} указал почту: {1} при регистрации! \
-        Добавить его в чат?'.format(user.first_name, user.email)
-        commands = {'add': 'Добавить пользователя',
-                    'black': 'В черный список',
-                    'pausa': 'Отложить решение'}
-        buttons = []
-        for command in commands:
-            button = {'ActionBody': '{0} {1}'.format(command, user.viber_id),
-                      'Text': '{0} {1}'.format(commands[command], user.first_name)}
-            buttons.append(button)
+    try:
+        users_valid = User.objects.filter(role='VALID')
+        users_su_valid = User.objects.filter(role='SU_VALID')[0]
+        for user in users_valid:
+            text = 'Пользователь:{0} указал почту: {1} при регистрации! \
+            Добавить его в чат?'.format(user.first_name, user.email)
+            commands = {'add': 'Добавить пользователя',
+                        'black': 'В черный список',
+                        'pausa': 'Отложить решение'}
+            buttons = []
+            for command in commands:
+                button = {'ActionBody': '{0} {1}'.format(command, user.viber_id),
+                          'Text': '{0} {1}'.format(commands[command], user.first_name)}
+                buttons.append(button)
 
-        key = {'Type': 'keyboard', 'Buttons': buttons}
-        viber.send_messages(to=users_su_valid.viber_id, messages=[TextMessage(text=text, keyboard=key)])
-        user.role = 'VALID_VERIF'
-        user.save()
-        # viber.send_messages(to=users_su_valid.viber_id, messages=[KeyboardMessage(keyboard=key)])
+            key = {'Type': 'keyboard', 'Buttons': buttons}
+            viber.send_messages(to=users_su_valid.viber_id, messages=[TextMessage(text=text, keyboard=key)])
+            user.role = 'VALID_VERIF'
+            user.save()
+            # viber.send_messages(to=users_su_valid.viber_id, messages=[KeyboardMessage(keyboard=key)])
 
-    users_valid = User.objects.filter(role='VALID_GOOD')
-    for user in users_valid:
-        text = 'Ваша заявка одобрена!'
-        Message.objects.create(user=user, text=text, status='READY')
-        user.role = 'USER'
-        user.save()
+        users_valid = User.objects.filter(role='VALID_GOOD')
+        for user in users_valid:
+            text = 'Ваша заявка одобрена!'
+            Message.objects.create(user=user, text=text, status='READY')
+            user.role = 'USER'
+            user.save()
+    except ObjectDoesNotExist:
+        pass
+    except IndexError:
+        pass

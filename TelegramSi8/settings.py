@@ -77,7 +77,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_celery_beat',
+    # 'django_celery_beat',
     'py_telegram',
     'py_viber',
     'si8_parsing',
