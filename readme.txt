@@ -28,6 +28,8 @@ sudo rabbitmqctl add_vhost myvhost
 sudo rabbitmqctl set_user_tags celeryuser mytag
 sudo rabbitmqctl set_permissions -p myvhost celeryuser ".*" ".*" ".*"
 
+sudo rabbitmq-plugins enable rabbitmq_management  -start web interface[default user guest:guest]
+
 При работе с celery очень важен часовой пояс. Если задачи через брокера сыпятся постоянно,
 проверьте настройки часового пояса
 
@@ -35,3 +37,12 @@ sudo rabbitmqctl set_permissions -p myvhost celeryuser ".*" ".*" ".*"
 
 git checkout master
 git merge viber
+
+Продление сертификатов Let’s Encrypt
+https://blog.m4rr.ru/all/letsencrypt-renewal/
+cd letsencrypt/             # перейти в директорию letsencrypt
+git pull                    # скачать обновления репозитория
+./letsencrypt-auto --help   # проверить, что все нормально
+sudo service nginx stop     # остановить сервер
+./letsencrypt-auto renew    # ← обновить сертификаты
+sudo service nginx start    # запустить сервер
