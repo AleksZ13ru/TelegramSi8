@@ -48,14 +48,12 @@
             </tr>
             </thead>
             <tbody>
-            {% for machine in machines %}
                 <tr>
                     <th scope="row">#</th>
                     <td>{{ machine.title }}</td>
                     <td>{{ machine.value|safe }}</td>
-                    <td>   </td>
+                    <td>@mdo</td>
                 </tr>
-            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -81,21 +79,6 @@
         format: 'dd/mm/yyyy',
         locale: 'ru-ru',
         weekStartDay: 1,
-        change: function (e) {
-            {#location.href = "http://ya.ru"+ this.value.month#}
-            {#m=this.value.split("/"),#}
-            {#alert(m[0])#}
-            {# m = this.value.split("/"),#}
-            {#    location.href = '/notes_b/' + m[2] + '/' + m[1] + '/' + m[0] + '/'#}
-        },
-        select: function (e, type) {
-            {#m = this.value.split("/"),#}
-            {#    location.href = '/notes_b/' + m[2] + '/' + m[1] + '/' + m[0] + '/'#}
-        },
-        close: function (e) {
-             m = this.value.split("/"),
-                location.href = '/notes_b/' + m[2] + '/' + m[1] + '/' + m[0] + '/'
-        }
 
     });
 </script>

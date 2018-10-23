@@ -18,7 +18,7 @@ color_700 = '#388E3C'
 color_800 = '#2E7D32'
 color_900 = '#1B5E20'
 
-svg_text_start = '<svg version="1.1" baseProfile="full" width="1000" height="20" xmlns="http://www.w3.org/2000/svg">'
+svg_text_start = '<svg version="1.1" baseProfile="full" width="1440" height="20" xmlns="http://www.w3.org/2000/svg">'
 svg_text_stop = '</svg>'
 svg_text_rect_default = '<rect data-toggle="tooltip" title="08:00 - 12" height="20" width="20" fill="#81C784" ></rect>'
 
@@ -78,21 +78,26 @@ def svg_text_create(values=input_dates):
     svg_text_rects = ''
     j = 0
     for i in values:
+        color = color_100
         if i > 0.0:
             color = color_300
-        elif i > 5.0:
+        if i > 25.0:
             color = color_500
-        elif i > 10.0:
-            color = color_700
-        elif i > 20.0:
-            color = color_900
-        else:
-            color = color_100
+        # if i > 10.0:
+        #     color = color_700
+        # if i > 20.0:
+        #     color = color_900
+
         title = '{0} - {1}'.format(min_to_time(j), i)
         svg_text_rects = svg_text_rects + rect_create(x=j, title=title, color=color)
         j = j + 1
 
     svg_text_full = svg_text_start + svg_text_rects + svg_text_stop
+    return svg_text_full
+
+
+def svg_pure():
+    svg_text_full = svg_text_start + svg_text_stop
     return svg_text_full
 
 
