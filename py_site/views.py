@@ -12,10 +12,6 @@ def django(request):
     return render(request, 'py_site/django.html')
 
 
-def notes(request):
-    return render(request, 'py_site/notes.html')
-
-
 # передаваемые данные:
 # 1 - current_date - текущая дата
 # 2 - machine - единица оборудования
@@ -34,6 +30,33 @@ def notes_b(request):
             svg = svg_text_create(value)
         except IndexError:
             svg = svg_pure()
+        m = {'title': machine.title, 'value': svg}
+        ms.append(m)
+    context = {'current_date': current_date, 'machines': ms}
+    return render(request, 'py_site/notes_b.html', context)
+
+
+def machine_filter(request, filter, party, year, month, day):
+    current_date = timezone.now().replace(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
+    if filter is 0:
+        machines = Machine.objects.all()
+    else:
+        machines = Machine.objects.filter(pk=filter)
+    ms = []
+    for machine in machines:
+        d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day))[0]
+        if party is 2:
+            next_d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day+1))[0]
+        try:
+            value = Value.objects.filter(register=machine.register, date=d.id)[0].value
+            if party is 2:
+                next_value = Value.objects.filter(register=machine.register, date=next_d.id)[0].value
+                svg = svg_text_create(values=value, next_values=next_value, party=party)
+            else:
+                svg = svg_text_create(values=value, party=party)
+        except IndexError:
+            svg = svg_pure()
+
         m = {'title': machine.title, 'value': svg}
         ms.append(m)
     context = {'current_date': current_date, 'machines': ms}

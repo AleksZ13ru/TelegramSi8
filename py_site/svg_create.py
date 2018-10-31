@@ -18,7 +18,7 @@ color_700 = '#388E3C'
 color_800 = '#2E7D32'
 color_900 = '#1B5E20'
 
-svg_text_start = '<svg version="1.1" baseProfile="full" width="1440" height="20" xmlns="http://www.w3.org/2000/svg">'
+svg_text_start = '<svg version="1.1" class="img-fluid" baseProfile="full" width="1440" height="20" xmlns="http://www.w3.org/2000/svg">'
 svg_text_stop = '</svg>'
 svg_text_rect_default = '<rect data-toggle="tooltip" title="08:00 - 12" height="20" width="20" fill="#81C784" ></rect>'
 
@@ -74,26 +74,62 @@ def rect_create(x, title, color):
     return result
 
 
-def svg_text_create(values=input_dates):
+def svg_text_create(values=input_dates, party=0, next_values=None):
     svg_text_rects = ''
     j = 0
     for i in values:
         color = color_100
         if i > 0.0:
-            color = color_300
-        if i > 25.0:
             color = color_500
+        # if i > 25.0:
+        #     color = color_500
         # if i > 10.0:
         #     color = color_700
         # if i > 20.0:
         #     color = color_900
-
         title = '{0} - {1}'.format(min_to_time(j), i)
-        svg_text_rects = svg_text_rects + rect_create(x=j, title=title, color=color)
+        if (party is 0):
+            svg_text_rects = svg_text_rects + rect_create(x=j, title=title, color=color)
+        elif (party is 1) and (j >= 440) and (j <= 1120):
+            svg_text_rects = svg_text_rects + rect_create(x=j - 440, title=title, color=color)
+        elif (party is 2) and (j >= 1120):
+            svg_text_rects = svg_text_rects + rect_create(x=j-1120, title=title, color=color)
         j = j + 1
-
+    if party is 2:
+        title = '{0} - {1}'.format(min_to_time(j), i)
+        j=0
+        for i in next_values:
+            color = color_100
+            if i > 0.0:
+                color = color_500
+            title = '{0} - {1}'.format(min_to_time(j), i)
+            if j < 440:
+                svg_text_rects = svg_text_rects + rect_create(x=j+320, title=title, color=color)
+            j = j + 1
     svg_text_full = svg_text_start + svg_text_rects + svg_text_stop
     return svg_text_full
+
+
+# def svg_text_create(values=input_dates):
+#     svg_text_rects = ''
+#     j = 0
+#     for i in values:
+#         color = color_100
+#         if i > 0.0:
+#             color = color_500
+#         # if i > 25.0:
+#         #     color = color_500
+#         # if i > 10.0:
+#         #     color = color_700
+#         # if i > 20.0:
+#         #     color = color_900
+#
+#         title = '{0} - {1}'.format(min_to_time(j), i)
+#         svg_text_rects = svg_text_rects + rect_create(x=j, title=title, color=color)
+#         j = j + 1
+#
+#     svg_text_full = svg_text_start + svg_text_rects + svg_text_stop
+#     return svg_text_full
 
 
 def svg_pure():
