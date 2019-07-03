@@ -48,25 +48,29 @@ CELERY_RESULT_BACKEND = my_set['CELERY_RESULT_BACKEND']
 CELERY_TASK_SERIALIZER = 'json'
 
 CELERY_BEAT_SCHEDULE = {
-    'message_task': {
-        'task': 'py_telegram.tasks.message_task',
-        'schedule': 10.0
-    },
-    'message_viber_task': {
-        'task': 'py_viber.tasks.message_viber_task',
-        'schedule': 10.0
-    },
-    'message_viber_create': {
-        'task': 'py_viber.tasks.message_viber_create',
-        'schedule': 10.0
-    },
-    'loop_task': {
-        'task': 'py_telegram.tasks.loop_task',
-        'schedule': 20.0,
-    },
-    'parsing_files_task': {
-        'task': 'si8_parsing.tasks.parsing_files_task',
-        'schedule': 20.0,
+    # 'message_task': {
+    #     'task': 'py_telegram.tasks.message_task',
+    #     'schedule': 10.0
+    # },
+    # 'message_viber_task': {
+    #     'task': 'py_viber.tasks.message_viber_task',
+    #     'schedule': 10.0
+    # },
+    # 'message_viber_create': {
+    #     'task': 'py_viber.tasks.message_viber_create',
+    #     'schedule': 10.0
+    # },
+    # 'loop_task': {
+    #     'task': 'py_telegram.tasks.loop_task',
+    #     'schedule': 20.0,
+    # },
+    # 'parsing_files_task': {
+    #     'task': 'si8_parsing.tasks.parsing_files_task',
+    #     'schedule': 60.0,
+    # },
+    'load_real_value_in_device_task': {
+        'task': 'si8_parsing.tasks.load_real_value_in_device',
+        'schedule': 60.0,
     }
 }
 

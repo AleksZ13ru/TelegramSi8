@@ -15,9 +15,9 @@ systemctl status postgresql
 
 sudo -u postgres psql
 CREATE DATABASE db;
-CREATE USER user WITH password 'user';
-GRANT ALL ON DATABASE db TO user;
-ALTER USER user CREATEDB;               # право на создание db, понадобилось для юнит тестов
+CREATE USER postuser WITH password 'passuser';
+GRANT ALL ON DATABASE db TO postuser;
+ALTER USER postuser CREATEDB;               # право на создание db, понадобилось для юнит тестов
 \q
 
 sudo service postgresql restart

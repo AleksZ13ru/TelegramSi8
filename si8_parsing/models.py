@@ -79,6 +79,7 @@ class Value(models.Model):
     date = models.ForeignKey('Date', on_delete=models.PROTECT)
     flag = models.CharField(max_length=4, choices=FLAG_STAT)  # флаг состояния цепочки данных
     value = JSONField()
+    status = JSONField(default=[])
 
     def __str__(self):
         result = '%s | %s=%d | %s' % (
@@ -97,15 +98,15 @@ class Value(models.Model):
         return title
 
     def display_len(self):
-        return len(self.value)
+        return '%d: %d' % (len(self.value), len(self.status))
 
     # meaning=смысл, значение, важность
     @staticmethod
     def add(register=None, date_now=timezone.now(), flag=FLAG_STAT[0][0], time_stamp=None, meaning=None, end_date=None):
-        pass
-        if register == 198:
-            a = 1
-            pass
+        # pass
+        # if register == 198:
+        #     a = 1
+        #     pass
         current_date = date_now.replace(hour=0, minute=0, second=0, microsecond=0)
         obj_data = Date.objects.get_or_create(date=current_date)[0]
         current_time = date_now.time()
@@ -181,6 +182,86 @@ class Value(models.Model):
             value_change.save()
         # Register.last_update(register=register.pk, time=date_now, value=meaning)
 
+    @staticmethod
+    def add_in_com_port(register, date_now=None, meaning=0):
+        date_now = timezone.now()
+        current_date = date_now.replace(hour=0, minute=0, second=0, microsecond=0)
+        obj_data = Date.objects.get_or_create(date=current_date)[0]
+        current_time = date_now.time()
+        total_minute = (current_time.hour * 60 + current_time.minute)
+        try:
+            value = Value.objects.filter(register=register, date_id=obj_data.id).get()
+            old_value = value.value
+            while len(old_value) < total_minute:
+                old_value.append(0)
+            old_value.append(meaning)
+            value.value = old_value
+            value.save()
+
+        except ObjectDoesNotExist:
+            value = Value.objects.create(register=register, date_id=obj_data.id, flag='GOOD', value=[])
+            old_value = value.value
+            while len(old_value) < total_minute:
+                old_value.append(0)
+            old_value.append(meaning)
+            value.value = old_value
+            value.save()
+
+    @staticmethod
+    def add_in_com_port1(register,  meaning=0, status=0):
+        date_now = timezone.now()
+        current_date = date_now.replace(hour=0, minute=0, second=0, microsecond=0)
+        obj_data = Date.objects.get_or_create(date=current_date)[0]
+        current_time = date_now.time()
+        total_minute = (current_time.hour * 60 + current_time.minute)
+        try:
+            value = Value.objects.filter(register=register, date_id=obj_data.id).get()
+            old_value = value.value
+            old_status = value.status
+
+            while len(old_value) < total_minute:
+                old_value.append(0)
+            old_value.append(meaning)
+            value.value = old_value
+
+            while len(old_status) < total_minute:
+                old_status.append(0)
+            old_status.append(status)
+            value.status = old_status
+
+            value.save()
+
+        except ObjectDoesNotExist:
+            value = Value.objects.create(register=register, date_id=obj_data.id, flag='GOOD', value=[])
+            old_value = value.value
+            old_status = value.status
+
+            while len(old_value) < total_minute:
+                old_value.append(0)
+            old_value.append(meaning)
+            value.value = old_value
+
+            while len(old_status) < total_minute:
+                old_status.append(0)
+            old_status.append(status)
+            value.status = old_status
+
+            value.save()
+
+
+class ComPort(models.Model):
+    class Meta:
+        verbose_name = "Сом порт"
+
+    name = models.CharField(max_length=20, null=True, blank=True)
+    enable = models.BooleanField(default=False)
+    port_name = models.CharField(default='/dev/ttyUSB0', max_length=20, null=True, blank=True)
+    baud_rate = models.IntegerField(default=4800)
+
+    def __str__(self):
+        result = '%s = %d: %s | %d' % (self.name, self.enable, self.port_name, self.baud_rate)
+        return result
+
 
 class Machine(models.Model):
     class Meta:
@@ -188,8 +269,9 @@ class Machine(models.Model):
         verbose_name_plural = "Оборудование"
 
     title = models.CharField(max_length=50)  # имя объекта(название группы регистров - пример=битумный котел)
-    lower = models.CharField(max_length=50, default='')  # имя в нижнем регистре, для поиска телеграмм бота
+    lower = models.CharField(max_length=50, default='', blank=True, null=True)  # имя в нижнем регистре, для телег.бота
     register = models.IntegerField()  # адрес устройства
+    com_port = models.ForeignKey(ComPort, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         result = '%s | %d' % (self.title, self.register)

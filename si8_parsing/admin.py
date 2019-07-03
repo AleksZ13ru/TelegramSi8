@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Folder, File
-from .models import Value, Date, Machine, ValueChange
+from .models import Value, Date, Machine, ValueChange, ComPort
 
 
 class FileAdmin(admin.ModelAdmin):
@@ -18,13 +18,14 @@ class ValueChageAdmin(admin.ModelAdmin):
 
 
 class MacineAdmin(admin.ModelAdmin):
-    list_display = ('title', 'register')
-    list_filter = ('title', 'register')
+    list_display = ('title', 'register', 'com_port')
+    list_filter = ('title', 'register', 'com_port')
 
 
 admin.site.register(Folder)
 admin.site.register(File, FileAdmin)
 
+admin.site.register(ComPort)
 admin.site.register(Value, ValueAdmin)
 admin.site.register(ValueChange, ValueChageAdmin)
 admin.site.register(Date)
