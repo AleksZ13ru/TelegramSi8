@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import json
 
 DB_DATETIME_FORMAT = '%d/%b/%Y %H:%M:%S'
-DB_DATE_FORMAT = '%m/%d/%Y'
+DB_DATE_FORMAT = '%d/%b/%Y'
 DB_DATETIME_Z_FORMAT = '%m/%d/%Y 0:0'
 DB_TIME_FORMAT = "%H:%M"
 
@@ -50,7 +50,7 @@ class Date(models.Model):
         # result = '%s' % (
         #     self.date
         # )
-        return self.date.strftime(DB_DATETIME_FORMAT)
+        return self.date.strftime(DB_DATE_FORMAT)
 
 
 # class TimeStamp(models.Model):
@@ -208,43 +208,60 @@ class Value(models.Model):
             value.save()
 
     @staticmethod
-    def add_in_com_port1(register,  meaning=0, status=0):
-        date_now = timezone.now()
-        current_date = date_now.replace(hour=0, minute=0, second=0, microsecond=0)
-        obj_data = Date.objects.get_or_create(date=current_date)[0]
-        current_time = date_now.time()
+    def create_list(old_list, ful_lenght, value):
+        my_list = old_list[:ful_lenght]
+        a = len(old_list)
+        b = len(my_list)
+        while len(my_list) < ful_lenght:
+            my_list.append(0)
+        my_list.append(value)
+        c = len(my_list)
+        return my_list
+
+    # принимает значение скорости и статус опроса
+    @staticmethod
+    def add_in_com_port1(register, meaning=0, status=0):
+        # date_now = timezone.now()
+        # current_date = date_now.replace(hour=0, minute=0, second=0, microsecond=0)
+        obj_data = Date.objects.get_or_create(date=timezone.now().date())[0]
+        current_time = timezone.now().time()
         total_minute = (current_time.hour * 60 + current_time.minute)
         try:
+            # value = Value.objects.filter(register=register, date_id=obj_data.id).get()
             value = Value.objects.filter(register=register, date_id=obj_data.id).get()
             old_value = value.value
             old_status = value.status
-
-            while len(old_value) < total_minute:
-                old_value.append(0)
-            old_value.append(meaning)
-            value.value = old_value
-
-            while len(old_status) < total_minute:
-                old_status.append(0)
-            old_status.append(status)
-            value.status = old_status
+            value.value = Value.create_list(old_value, total_minute, meaning)
+            value.status = Value.create_list(old_status, total_minute, status)
+            # while len(old_value) < total_minute:
+            #     old_value.append(0)
+            # old_value.append(meaning)
+            # value.value = old_value
+            #
+            # while len(old_status) < total_minute:
+            #     old_status.append(0)
+            # old_status.append(status)
+            # value.status = old_status
 
             value.save()
 
         except ObjectDoesNotExist:
+            # value = Value.objects.create(register=register, date_id=obj_data.id, flag='GOOD', value=[])
             value = Value.objects.create(register=register, date_id=obj_data.id, flag='GOOD', value=[])
             old_value = value.value
             old_status = value.status
+            value.value = Value.create_list(old_value, total_minute, meaning)
+            value.status = Value.create_list(old_status, total_minute, status)
 
-            while len(old_value) < total_minute:
-                old_value.append(0)
-            old_value.append(meaning)
-            value.value = old_value
-
-            while len(old_status) < total_minute:
-                old_status.append(0)
-            old_status.append(status)
-            value.status = old_status
+            # while len(old_value) < total_minute:
+            #     old_value.append(0)
+            # old_value.append(meaning)
+            # value.value = old_value
+            #
+            # while len(old_status) < total_minute:
+            #     old_status.append(0)
+            # old_status.append(status)
+            # value.status = old_status
 
             value.save()
 
@@ -257,6 +274,7 @@ class ComPort(models.Model):
     enable = models.BooleanField(default=False)
     port_name = models.CharField(default='/dev/ttyUSB0', max_length=20, null=True, blank=True)
     baud_rate = models.IntegerField(default=4800)
+    timeout = models.FloatField(default=0.5)
 
     def __str__(self):
         result = '%s = %d: %s | %d' % (self.name, self.enable, self.port_name, self.baud_rate)
@@ -268,10 +286,12 @@ class Machine(models.Model):
         verbose_name = "Оборудование"
         verbose_name_plural = "Оборудование"
 
+    enable = models.BooleanField(default=False)
     title = models.CharField(max_length=50)  # имя объекта(название группы регистров - пример=битумный котел)
     lower = models.CharField(max_length=50, default='', blank=True, null=True)  # имя в нижнем регистре, для телег.бота
     register = models.IntegerField()  # адрес устройства
     com_port = models.ForeignKey(ComPort, on_delete=models.PROTECT, blank=True, null=True)
+    # time_disconect  время отсутствия ответа
 
     def __str__(self):
         result = '%s | %d' % (self.title, self.register)

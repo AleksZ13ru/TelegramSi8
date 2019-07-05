@@ -5,7 +5,8 @@ from celery import shared_task
 
 from si8_parsing.models import File
 from si8_parsing.code2 import find_file, open_files
-from .read_device import read_device_in_model, coms_read_in_model, threading_read_in_model
+# from .read_device import read_device_in_model, coms_read_in_model,
+from .read_device import threading_read_in_model
 
 '''
 функция проверяет состояние оборудования, и при обнаруженнии останова - запуска машины,

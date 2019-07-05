@@ -18,14 +18,18 @@ class ValueChageAdmin(admin.ModelAdmin):
 
 
 class MacineAdmin(admin.ModelAdmin):
-    list_display = ('title', 'register', 'com_port')
-    list_filter = ('title', 'register', 'com_port')
+    list_display = ('title', 'enable', 'register', 'com_port')
+    list_filter = ('title', 'enable', 'register', 'com_port')
+
+
+class ComPortAdmin(admin.ModelAdmin):
+    list_display = ('name', 'enable', 'port_name')
 
 
 admin.site.register(Folder)
 admin.site.register(File, FileAdmin)
 
-admin.site.register(ComPort)
+admin.site.register(ComPort, ComPortAdmin)
 admin.site.register(Value, ValueAdmin)
 admin.site.register(ValueChange, ValueChageAdmin)
 admin.site.register(Date)
