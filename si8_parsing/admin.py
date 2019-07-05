@@ -17,13 +17,21 @@ class ValueChageAdmin(admin.ModelAdmin):
     list_display = ('machine', 'read_datetime', 'read_value')
 
 
-class MacineAdmin(admin.ModelAdmin):
+class MachineAdmin(admin.ModelAdmin):
     list_display = ('title', 'enable', 'register', 'com_port')
     list_filter = ('title', 'enable', 'register', 'com_port')
 
 
+class MachineInline(admin.TabularInline):
+    model = Machine
+    extra = 0
+    can_delete = False
+    fields = ('title', 'enable', 'register')
+
+
 class ComPortAdmin(admin.ModelAdmin):
-    list_display = ('name', 'enable', 'port_name')
+    list_display = ('name', 'enable', 'port_name', 'timeout')
+    inlines = [MachineInline]
 
 
 admin.site.register(Folder)
@@ -33,4 +41,4 @@ admin.site.register(ComPort, ComPortAdmin)
 admin.site.register(Value, ValueAdmin)
 admin.site.register(ValueChange, ValueChageAdmin)
 admin.site.register(Date)
-admin.site.register(Machine, MacineAdmin)
+admin.site.register(Machine, MachineAdmin)

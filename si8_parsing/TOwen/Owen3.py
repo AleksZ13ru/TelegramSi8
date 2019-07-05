@@ -11,6 +11,19 @@ class OwenError(Exception):
     pass
 
 
+class OwenPortNotOpenError(OwenError):
+    """ИсклЮчение вызвано отсутствием порта
+        Attributes:
+            msg  -- текст ошибки
+        """
+
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return repr(self.msg)
+
+
 class OwenProtocolError(OwenError):
     """ИсклЮчение вызвано ошибкой в протоколе (выход за границы дипазонов, отсутствие данных и др.)
     Attributes:
@@ -483,7 +496,8 @@ class NetworProtocolSettings:
 
 class OwenDevice:
     # Конструктор
-    # serialPort - объект, поддерживающий чтение и запись в последовательный порт, можно использовать стандартный Serial из пакета pySerial
+    # serialPort - объект, поддерживающий чтение и запись в последовательный порт,
+    # можно использовать стандартный Serial из пакета pySerial
     # address - базовый адрес устройства
     def __init__(self, serialPort=None, address=16, addrLen=8):
         # type: (object, object, object) -> object
@@ -561,6 +575,7 @@ class OwenDevice:
             self.owenProtocol.frameAscii = charsFromPort
         else:
             self.owenProtocol.frameAscii = self.TestResponseString  # возвращаем эту строку если порт не определён
+            raise OwenPortNotOpenError('OwenDevice::Not open Port')
         return self.owenProtocol.frameAscii
 
     def TakeHashFrom(self, hashOrName):

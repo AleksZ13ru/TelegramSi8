@@ -70,7 +70,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     'load_real_value_in_device_task': {
         'task': 'si8_parsing.tasks.load_real_value_in_device',
-        'schedule': 59.985,
+        'schedule': 59.98,
     }
 }
 

@@ -24,7 +24,8 @@ def threading_read_in_model():
 def read_machine_in_model(comport):
     try:
         COM = MySerial3.ComPort(port=comport.port_name, baudrate=comport.baud_rate, timeout=comport.timeout)
-    except:
+    except Owen3.OwenPortNotOpenError:
+        print('Error openning port!')
         raise Exception('Error openning port!')
     machines = Machine.objects.filter(com_port=comport, enable=True)
     for machine in machines:
