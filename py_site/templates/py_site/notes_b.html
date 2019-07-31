@@ -23,8 +23,11 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">Машинное время <span class="sr-only">(current)</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'py_notes_b' %}">Машинное время<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'py_report_b' %}">Рапорт</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Ведомость простоев</a>
@@ -163,7 +166,7 @@
                     </tr>
                     {% for machine in machines %}
                         <tr>
-                            <th scope="row">#</th>
+                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ machine.title }}</td>
                             <td>{{ machine.value|safe }}</td>
                             <td>0.97</td>

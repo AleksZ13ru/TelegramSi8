@@ -36,6 +36,36 @@ def notes_b(request):
     return render(request, 'py_site/notes_b.html', context)
 
 
+def report(request):
+    current_date = timezone.now().strftime(DB_DATE_FORMAT)
+    machines = Machine.objects.all()
+    ms = []
+    for machine in machines:
+        # value = Value.objects.filter(register=machine.register)[0].value
+        d = Date.objects.filter(date=timezone.now())[0]
+        try:
+            value = Value.objects.filter(register=machine.register, date=d.id)[0].value
+            svg = svg_text_create(value)
+        except IndexError:
+            svg = svg_pure()
+        # m = {'title': machine.title, 'value': svg}
+        m = {'title': machine.title,
+             'normative_time': machine.normative_time,
+             'normative_speed': machine.normative_speed,
+             'normative_product': machine.normative_product,
+             'present_time': '00/00',
+             'present_speed': 11.2,
+             'present_product': 654.0,
+             'kmt': 0.6}
+        ms.append(m)
+    context = {'current_date': current_date, 'machines': ms}
+    return render(request, 'py_site/report.html', context)
+
+
+def report_history(request):
+    return render(request, 'py_site/django.html')
+
+
 def machine_filter(request, filter, party, year, month, day):
     current_date = timezone.now().replace(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
     if filter is 0:

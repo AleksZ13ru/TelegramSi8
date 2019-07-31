@@ -78,7 +78,8 @@ class Value(models.Model):
     register = models.IntegerField()
     date = models.ForeignKey('Date', on_delete=models.PROTECT)
     flag = models.CharField(max_length=4, choices=FLAG_STAT)  # флаг состояния цепочки данных
-    value = JSONField()
+    # TODO: добавил default=[], нужно проверить , написать Тесты!!!!
+    value = JSONField(default=[])
     status = JSONField(default=[])
 
     def __str__(self):
@@ -291,6 +292,9 @@ class Machine(models.Model):
     lower = models.CharField(max_length=50, default='', blank=True, null=True)  # имя в нижнем регистре, для телег.бота
     register = models.IntegerField()  # адрес устройства
     com_port = models.ForeignKey(ComPort, on_delete=models.PROTECT, blank=True, null=True)
+    normative_time = models.FloatField(default=0)  # норматив машинного времени
+    normative_speed = models.FloatField(default=0)  # норматив скорости
+    normative_product = models.FloatField(default=0)  # норматив выработки
     # time_disconect  время отсутствия ответа
 
     def __str__(self):

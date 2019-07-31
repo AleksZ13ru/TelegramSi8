@@ -1,0 +1,188 @@
+{% load staticfiles %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/gijgo@1.9.10/css/gijgo.min.css" rel="stylesheet" type="text/css"/>
+
+    <title>Шестеренка</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Сарансккабель</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'py_notes_b' %}">Машинное время</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'py_report_b' %}">Рапорт<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Ведомость простоев</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="#">Планирование</a>
+            </li>
+        </ul>
+        <form class="form-inline">
+            <select class="form-control mr-md-2" id="partylSelect">
+                <option value="0">сутки</option>
+                <option value="1">1 смена</option>
+                <option value="2">2 смена</option>
+            </select>
+        </form>
+        <form class="form-inline">
+            <input id="datepicker" width="276" value="{{ current_date }}"/>
+        </form>
+
+    </div>
+</nav>
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb dropdown">
+            <li class="breadcrumb-item">
+                <a href="#">Все оборудование</a>
+            <li class="breadcrumb-item">
+                <a class="dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">ПКС</a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="#">Все оборудование</a>
+                    <a class="dropdown-item" href="#">ПКС</a>
+                    <a class="dropdown-item" href="#">ПСК</a>
+                </div>
+            <li class="breadcrumb-item">
+                <a class="dropdown-toggle" href="#" id="dropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">Все участки</a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                    <a class="dropdown-item" href="#">Все оборудование</a>
+                    <a class="dropdown-item" href="#">Участок 1</a>
+                    <a class="dropdown-item" href="#">Участок 2</a>
+                </div>
+                <!--<li class="breadcrumb-item active" aria-current="page">Data</li>-->
+        </ol>
+    </nav>
+    <div class="row m-2">
+        <div class="col"></div>
+        <div class="col-3">
+            <input type="text" class="form-control pull-right" id="myInput" placeholder="Поиск по таблице">
+        </div>
+    </div>
+    <div class="row m-2">
+        <div class="col">
+            <div class="">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th rowspan="2">#</th>
+                        <th rowspan="2">Оборудование</th>
+                        <th>Маш. время норм. час/мин</th>
+                        <th>Маш. время факт. час/мин</th>
+                        <th>Скорость технолог. норм. м/мин</th>
+                        <th>Скорость технолог. факт. м/мин</th>
+                        <th>Выработка норм. км.тн.</th>
+                        <th>Выработка факт. км.тн.</th>
+                        <th>к.м.в</th>
+                    </tr>
+                    </thead>
+                    <tbody id="myTable">
+{#                    <tr>#}
+{#                        <th scope="row"></th>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                        <td></td>#}
+{#                    </tr>#}
+                    {% for machine in machines %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ machine.title }}</td>
+                            <td>{{ machine.normative_time }}</td>
+                            <td>{{ machine.present_time }}</td>
+                            <td>{{ machine.normative_speed }}</td>
+                            <td>{{ machine.present_speed }}</td>
+                            <td>{{ machine.normative_product }}</td>
+                            <td>{{ machine.present_product }}</td>
+                            <td>{{machine.kmt}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gijgo@1.9.10/js/gijgo.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/gijgo@1.9.10/js/messages/messages.ru-ru.js" type="text/javascript"></script>
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip({
+            animation: false
+        });
+    });
+
+    $('#datepicker').datepicker({
+        uiLibrary: 'bootstrap4',
+        format: 'dd/mm/yyyy',
+        locale: 'ru-ru',
+        weekStartDay: 1,
+        change: function (e) {
+            {#location.href = "http://ya.ru"+ this.value.month#}
+            {#m=this.value.split("/"),#}
+            {#alert(m[0])#}
+            {# m = this.value.split("/"),#}
+            {#    location.href = '/notes_b/' + m[2] + '/' + m[1] + '/' + m[0] + '/'#}
+        },
+        select: function (e, type) {
+            {#m = this.value.split("/"),#}
+            {#    location.href = '/notes_b/' + m[2] + '/' + m[1] + '/' + m[0] + '/'#}
+        },
+        close: function (e) {
+            m = this.value.split("/");
+            party = $("#partylSelect").val()
+            location.href = '/filter/0/party/'+party+/date/+ m[2] + '/' + m[1] + '/' + m[0] + '/';
+        }
+
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#partylSelect").change(function () {
+            m = $('#datepicker').val().split("/");
+            party  = $(this).val();
+            location.href = '/filter/0/party/'+party+/date/+ m[2] + '/' + m[1] + '/' + m[0] + '/';
+
+        });
+    });
+</script>
+</body>
+</html>
