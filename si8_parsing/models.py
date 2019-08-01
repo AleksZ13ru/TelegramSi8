@@ -232,7 +232,7 @@ class Value(models.Model):
             value = Value.objects.filter(register=register, date_id=obj_data.id).get()
             old_value = value.value
             old_status = value.status
-            value.value = Value.create_list(old_value, total_minute, meaning)
+            value.value = Value.create_list(old_value, total_minute, round(meaning, 2))
             value.status = Value.create_list(old_status, total_minute, status)
             # while len(old_value) < total_minute:
             #     old_value.append(0)
