@@ -87,13 +87,19 @@
                     <tr>
                         <th rowspan="2">#</th>
                         <th rowspan="2">Оборудование</th>
-                        <th>Маш. время норм. час/мин</th>
-                        <th>Маш. время факт. час/мин</th>
-                        <th>Скорость технолог. норм. м/мин</th>
-                        <th>Скорость технолог. факт. м/мин</th>
-                        <th>Выработка норм. км.тн.</th>
-                        <th>Выработка факт. км.тн.</th>
-                        <th>к.м.в</th>
+                        <th colspan="2">Машинное время, мин.</th>
+                        <th colspan="2">Скорость технологическая, м/мин.</th>
+                        <th colspan="2">Выработка, км.тн.</th>
+                        <th rowspan="2">к.м.в</th>
+                    </tr>
+                    <tr>
+                        <th>норм.</th>
+                        <th>факт.</th>
+                        <th>норм.</th>
+                        <th>факт.</th>
+                        <th>норм.</th>
+                        <th>факт.</th>
+
                     </tr>
                     </thead>
                     <tbody id="myTable">
@@ -163,7 +169,7 @@
         close: function (e) {
             m = this.value.split("/");
             party = $("#partylSelect").val()
-            location.href = '/filter/0/party/'+party+/date/+ m[2] + '/' + m[1] + '/' + m[0] + '/';
+            location.href = '/report/filter/0/party/'+party+/date/+ m[2] + '/' + m[1] + '/' + m[0] + '/';
         }
 
     });
@@ -179,7 +185,7 @@
         $("#partylSelect").change(function () {
             m = $('#datepicker').val().split("/");
             party  = $(this).val();
-            location.href = '/filter/0/party/'+party+/date/+ m[2] + '/' + m[1] + '/' + m[0] + '/';
+            location.href = '/report/filter/0/party/'+party+/date/+ m[2] + '/' + m[1] + '/' + m[0] + '/';
 
         });
     });

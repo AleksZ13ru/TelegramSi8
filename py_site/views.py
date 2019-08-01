@@ -50,6 +50,7 @@ def report(request):
         length = 0
         length_km = 0
         work_time = 0
+        work_time_hm = '00:00'
         speed = 0
         try:
             value = Value.objects.filter(register=machine.register, date=d.id)[0].value
@@ -63,7 +64,7 @@ def report(request):
             if work_time is not 0:
                 speed = round(length / work_time, 2)
             length_km = round(length/1000, 2)
-
+            work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time - (work_time // 60)*60)
         except IndexError:
             pass
             # svg = svg_pure()
@@ -72,7 +73,7 @@ def report(request):
              'normative_time': machine.normative_time,
              'normative_speed': machine.normative_speed,
              'normative_product': machine.normative_product,
-             'present_time': work_time,
+             'present_time': work_time_hm,
              'present_speed': speed,
              'present_product': length_km,
              'kmt': kmt}
@@ -81,8 +82,55 @@ def report(request):
     return render(request, 'py_site/report.html', context)
 
 
-def report_history(request):
-    return render(request, 'py_site/django.html')
+def report_history(request, filter, party, year, month, day):
+    current_date = timezone.now().replace(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
+    if filter is 0:
+        machines = Machine.objects.all()
+    else:
+        machines = Machine.objects.filter(pk=filter)
+    ms = []
+    for machine in machines:
+
+        d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day))[0]
+        kmt = 0
+        length = 0
+        length_km = 0
+        work_time = 0
+        work_time_hm = '00:00'
+        speed = 0
+        if party is 2:
+            next_d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day + 1))[0]
+        try:
+            value = Value.objects.filter(register=machine.register, date=d.id)[0].value
+            v = value
+            if party is 2:
+                next_value = Value.objects.filter(register=machine.register, date=next_d.id)[0].value
+                # svg = svg_text_create(values=value, next_values=next_value, party=party)
+                v.extend(next_value)
+            kmt = round((len(v) - v.count(0)) / len(v), 2)
+            for s in v:
+                if s > 0:
+                    work_time = work_time + 1
+                    length = length + s
+            if work_time is not 0:
+                speed = round(length / work_time, 2)
+            length_km = round(length / 1000, 2)
+            work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time - (work_time // 60)*60)
+        except IndexError:
+           pass
+
+        # m = {'title': machine.title, 'value': svg}
+        m = {'title': machine.title,
+             'normative_time': machine.normative_time,
+             'normative_speed': machine.normative_speed,
+             'normative_product': machine.normative_product,
+             'present_time': work_time_hm,
+             'present_speed': speed,
+             'present_product': length_km,
+             'kmt': kmt}
+        ms.append(m)
+    context = {'current_date': current_date, 'machines': ms}
+    return render(request, 'py_site/report.html', context)
 
 
 def machine_filter(request, filter, party, year, month, day):
