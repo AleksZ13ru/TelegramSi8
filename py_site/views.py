@@ -25,12 +25,15 @@ def notes_b(request):
     for machine in machines:
         # value = Value.objects.filter(register=machine.register)[0].value
         d = Date.objects.filter(date=timezone.now())[0]
+        kmt = 0
         try:
             value = Value.objects.filter(register=machine.register, date=d.id)[0].value
             svg = svg_text_create(value)
+            v = value
+            kmt = round((len(v) - v.count(0)) / len(v), 2)
         except IndexError:
             svg = svg_pure()
-        m = {'title': machine.title, 'value': svg}
+        m = {'title': machine.title, 'value': svg,  'kmt': kmt}
         ms.append(m)
     context = {'current_date': current_date, 'machines': ms}
     return render(request, 'py_site/notes_b.html', context)
@@ -43,20 +46,36 @@ def report(request):
     for machine in machines:
         # value = Value.objects.filter(register=machine.register)[0].value
         d = Date.objects.filter(date=timezone.now())[0]
+        kmt = 0
+        length = 0
+        length_km = 0
+        work_time = 0
+        speed = 0
         try:
             value = Value.objects.filter(register=machine.register, date=d.id)[0].value
-            svg = svg_text_create(value)
+            # svg = svg_text_create(value)
+            v = value
+            kmt = round((len(v) - v.count(0)) / len(v), 2)
+            for s in v:
+                if s > 0:
+                    work_time = work_time + 1
+                    length = length + s
+            if work_time is not 0:
+                speed = round(length / work_time, 2)
+            length_km = round(length/1000, 2)
+
         except IndexError:
-            svg = svg_pure()
+            pass
+            # svg = svg_pure()
         # m = {'title': machine.title, 'value': svg}
         m = {'title': machine.title,
              'normative_time': machine.normative_time,
              'normative_speed': machine.normative_speed,
              'normative_product': machine.normative_product,
-             'present_time': '00/00',
-             'present_speed': 11.2,
-             'present_product': 654.0,
-             'kmt': 0.6}
+             'present_time': work_time,
+             'present_speed': speed,
+             'present_product': length_km,
+             'kmt': kmt}
         ms.append(m)
     context = {'current_date': current_date, 'machines': ms}
     return render(request, 'py_site/report.html', context)
