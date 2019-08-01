@@ -101,6 +101,36 @@ class Value(models.Model):
     def display_len(self):
         return '%d: %d' % (len(self.value), len(self.status))
 
+    def create_kmt(self):
+        return round((len(self.value) - self.value.count(0)) / len(self.value), 2)
+
+    def create_length_km(self):
+        length = 0
+        for s in self.value:
+            if s > 0:
+                length = length + s
+        return round(length / 1000, 2)
+
+    def create_speed(self):
+        length = 0
+        work_time = 0
+        speed = 0
+        for s in self.value:
+            if s > 0:
+                work_time = work_time + 1
+                length = length + s
+        if work_time is not 0:
+            speed = round(length / work_time, 2)
+        return speed
+
+    def create_work_time_hm(self):
+        work_time = 0
+        for s in self.value:
+            if s > 0:
+                work_time = work_time + 1
+        work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time % 60)
+        return work_time_hm
+
     # meaning=смысл, значение, важность
     @staticmethod
     def add(register=None, date_now=timezone.now(), flag=FLAG_STAT[0][0], time_stamp=None, meaning=None, end_date=None):
@@ -292,7 +322,7 @@ class Machine(models.Model):
     lower = models.CharField(max_length=50, default='', blank=True, null=True)  # имя в нижнем регистре, для телег.бота
     register = models.IntegerField()  # адрес устройства
     com_port = models.ForeignKey(ComPort, on_delete=models.PROTECT, blank=True, null=True)
-    normative_time = models.FloatField(default=0)  # норматив машинного времени
+    normative_time = models.TimeField()  # норматив машинного времени
     normative_speed = models.FloatField(default=0)  # норматив скорости
     normative_product = models.FloatField(default=0)  # норматив выработки
     # time_disconect  время отсутствия ответа

@@ -24,17 +24,18 @@ def notes_b(request):
     ms = []
     for machine in machines:
         # value = Value.objects.filter(register=machine.register)[0].value
-        d = Date.objects.filter(date=timezone.now())[0]
-        kmt = 0
         try:
-            value = Value.objects.filter(register=machine.register, date=d.id)[0].value
-            svg = svg_text_create(value)
-            v = value
-            kmt = round((len(v) - v.count(0)) / len(v), 2)
+            d = Date.objects.get(date=timezone.now())
+        except Date.DoesNotExist:
+            d = Date(date=timezone.now())
+            d.save()
+        try:
+            value = Value.objects.get(register=machine.register, date=d.id)
+            svg = svg_text_create(value.value)
+            m = {'title': machine.title, 'value': svg, 'kmt': value.create_kmt()}
+            ms.append(m)
         except IndexError:
             svg = svg_pure()
-        m = {'title': machine.title, 'value': svg,  'kmt': kmt}
-        ms.append(m)
     context = {'current_date': current_date, 'machines': ms}
     return render(request, 'py_site/notes_b.html', context)
 
@@ -44,40 +45,25 @@ def report(request):
     machines = Machine.objects.all()
     ms = []
     for machine in machines:
-        # value = Value.objects.filter(register=machine.register)[0].value
-        d = Date.objects.filter(date=timezone.now())[0]
-        kmt = 0
-        length = 0
-        length_km = 0
-        work_time = 0
-        work_time_hm = '00:00'
-        speed = 0
         try:
-            value = Value.objects.filter(register=machine.register, date=d.id)[0].value
+            d = Date.objects.get(date=timezone.now())
+        except Date.DoesNotExist:
+            d = Date(date=timezone.now())
+            d.save()
+        try:
+            value = Value.objects.get(register=machine.register, date=d.id)
             # svg = svg_text_create(value)
-            v = value
-            kmt = round((len(v) - v.count(0)) / len(v), 2)
-            for s in v:
-                if s > 0:
-                    work_time = work_time + 1
-                    length = length + s
-            if work_time is not 0:
-                speed = round(length / work_time, 2)
-            length_km = round(length/1000, 2)
-            work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time - (work_time // 60)*60)
+            m = {'title': machine.title,
+                 'normative_time': '{0:0>2}:{1:0>2}'.format(machine.normative_time.hour, machine.normative_time.minute),
+                 'normative_speed': machine.normative_speed,
+                 'normative_product': machine.normative_product,
+                 'present_time': value.create_work_time_hm(),
+                 'present_speed': value.create_speed(),
+                 'present_product': value.create_length_km(),
+                 'kmt': value.create_kmt()}
+            ms.append(m)
         except IndexError:
             pass
-            # svg = svg_pure()
-        # m = {'title': machine.title, 'value': svg}
-        m = {'title': machine.title,
-             'normative_time': machine.normative_time,
-             'normative_speed': machine.normative_speed,
-             'normative_product': machine.normative_product,
-             'present_time': work_time_hm,
-             'present_speed': speed,
-             'present_product': length_km,
-             'kmt': kmt}
-        ms.append(m)
     context = {'current_date': current_date, 'machines': ms}
     return render(request, 'py_site/report.html', context)
 
@@ -90,23 +76,27 @@ def report_history(request, filter, party, year, month, day):
         machines = Machine.objects.filter(pk=filter)
     ms = []
     for machine in machines:
-
-        d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day))[0]
+        # d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day))[0]
+        try:
+            d = Date.objects.get(date=timezone.datetime(year=year, month=month, day=day))
+        except Date.DoesNotExist:
+            d = Date(date=timezone.datetime(year=year, month=month, day=day))
+            d.save()
         kmt = 0
         length = 0
         length_km = 0
         work_time = 0
         work_time_hm = '00:00'
         speed = 0
+        # TODO:  переправить filter на get запрос
+        # TODO:  kmt и подобные запросы перенести в модель
         if party is 2:
-            next_d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day + 1))[0]
+            next_d = Date.objects.get(date=timezone.datetime(year=year, month=month, day=day+1))
         try:
             value = Value.objects.filter(register=machine.register, date=d.id)[0].value
             v = value
-            if party is 2:
-                next_value = Value.objects.filter(register=machine.register, date=next_d.id)[0].value
-                # svg = svg_text_create(values=value, next_values=next_value, party=party)
-                v.extend(next_value)
+            next_value = Value.objects.filter(register=machine.register, date=next_d.id)[0].value
+            v.extend(next_value)
             kmt = round((len(v) - v.count(0)) / len(v), 2)
             for s in v:
                 if s > 0:
@@ -115,11 +105,10 @@ def report_history(request, filter, party, year, month, day):
             if work_time is not 0:
                 speed = round(length / work_time, 2)
             length_km = round(length / 1000, 2)
-            work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time - (work_time // 60)*60)
+            work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time % 60)
         except IndexError:
-           pass
+            pass
 
-        # m = {'title': machine.title, 'value': svg}
         m = {'title': machine.title,
              'normative_time': machine.normative_time,
              'normative_speed': machine.normative_speed,
@@ -143,7 +132,7 @@ def machine_filter(request, filter, party, year, month, day):
     for machine in machines:
         d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day))[0]
         if party is 2:
-            next_d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day+1))[0]
+            next_d = Date.objects.filter(date=timezone.now().replace(year=year, month=month, day=day + 1))[0]
         try:
             value = Value.objects.filter(register=machine.register, date=d.id)[0].value
             if party is 2:
