@@ -53,6 +53,19 @@ class Date(models.Model):
         return self.date.strftime(DB_DATE_FORMAT)
 
 
+class Party(models.Model):
+    class Meta:
+        verbose_name = "Смена"
+        verbose_name_plural = "Смены"
+
+    title = models.CharField(max_length=50)
+    index = models.IntegerField()
+    time_start = models.TimeField()
+    time_end = models.TimeField()
+
+    def __str__(self):
+        return '{0}: {1} - {2}'.format(self.title, self.time_start, self.time_end)
+
 # class TimeStamp(models.Model):
 #     class Meta:
 #         verbose_name = "Штамп времени"
@@ -78,8 +91,7 @@ class Value(models.Model):
     register = models.IntegerField()
     date = models.ForeignKey('Date', on_delete=models.PROTECT)
     flag = models.CharField(max_length=4, choices=FLAG_STAT)  # флаг состояния цепочки данных
-    # TODO: добавил default=[], нужно проверить , написать Тесты!!!!
-    value = JSONField(default=[])
+    value = JSONField(default=[])  # TODO: добавил default=[], нужно проверить , написать Тесты!!!!
     status = JSONField(default=[])
 
     def __str__(self):
@@ -104,9 +116,23 @@ class Value(models.Model):
     def create_kmt(self):
         return round((len(self.value) - self.value.count(0)) / len(self.value), 2)
 
+    @staticmethod
+    def create_kmt_in_party(register=None, date_now=timezone.now(), party=None):
+        value = Value.get_in_party(register=register, date_now=date_now, party=party)
+        return round((len(value) - value.count(0)) / len(value), 2)
+
     def create_length_km(self):
         length = 0
         for s in self.value:
+            if s > 0:
+                length = length + s
+        return round(length / 1000, 2)
+
+    @staticmethod
+    def create_length_km_in_party(register=None, date_now=timezone.now(), party=None):
+        value = Value.get_in_party(register=register, date_now=date_now, party=party)
+        length = 0
+        for s in value:
             if s > 0:
                 length = length + s
         return round(length / 1000, 2)
@@ -123,9 +149,33 @@ class Value(models.Model):
             speed = round(length / work_time, 2)
         return speed
 
+    @staticmethod
+    def create_speed_in_party(register=None, date_now=timezone.now(), party=None):
+        value = Value.get_in_party(register=register, date_now=date_now, party=party)
+        length = 0
+        work_time = 0
+        speed = 0
+        for s in value:
+            if s > 0:
+                work_time = work_time + 1
+                length = length + s
+        if work_time is not 0:
+            speed = round(length / work_time, 2)
+        return speed
+
     def create_work_time_hm(self):
         work_time = 0
         for s in self.value:
+            if s > 0:
+                work_time = work_time + 1
+        work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time % 60)
+        return work_time_hm
+
+    @staticmethod
+    def create_work_time_hm_in_party(register=None, date_now=timezone.now(), party=None):
+        value = Value.get_in_party(register=register, date_now=date_now, party=party)
+        work_time = 0
+        for s in value:
             if s > 0:
                 work_time = work_time + 1
         work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time % 60)
@@ -212,6 +262,34 @@ class Value(models.Model):
                 pass
             value_change.save()
         # Register.last_update(register=register.pk, time=date_now, value=meaning)
+
+    @staticmethod  # TODO: определится с поведением на неправильный регистр
+    # TODO: обработать случай смена№2, в первый день массив заканчивается раньше 00:00 (1440 элементов)
+    def get_in_time(register=None, date_now=timezone.now(), time_start=None, time_end=None):
+        value = Value.objects.get(register=register, date__date=date_now)
+        if time_start is not None and time_end is not None:
+            minute_start = time_start.hour * 60 + time_start.minute
+            minute_end = time_end.hour * 60 + time_end.minute+1
+            if minute_end <= minute_start:
+                v = value.value[minute_start:]
+                try:
+                    value_next_day = Value.objects.get(register=register, date__date=date_now.replace(day=date_now.day+1))
+                    v.extend(value_next_day.value[0:minute_end])
+                except ObjectDoesNotExist:
+                    pass
+                return v
+            else:
+                return value.value[minute_start:minute_end]
+        else:
+            return value.value
+
+    @staticmethod
+    def get_in_party(register=None, date_now=timezone.now(), party=None):
+        if party is not None:
+            p = Party.objects.get(index=party)
+            return Value.get_in_time(register=register, date_now=date_now, time_start=p.time_start, time_end=p.time_end)
+        else:
+            return Value.get_in_time(register=register, date_now=date_now)
 
     @staticmethod
     def add_in_com_port(register, date_now=None, meaning=0):
@@ -325,6 +403,7 @@ class Machine(models.Model):
     normative_time = models.TimeField()  # норматив машинного времени
     normative_speed = models.FloatField(default=0)  # норматив скорости
     normative_product = models.FloatField(default=0)  # норматив выработки
+
     # time_disconect  время отсутствия ответа
 
     def __str__(self):
@@ -347,3 +426,4 @@ class ValueChange(models.Model):
     def __str__(self):
         result = '{0} | {1}={2}'.format(self.machine.title, self.read_datetime, self.read_value)
         return result
+

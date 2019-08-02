@@ -1,10 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
-# TODO: Hello
-
-
 class Machine(models.Model):
     LOCATION = (
         ('1', 'ПКС'),

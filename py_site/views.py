@@ -57,10 +57,10 @@ def report(request):
                  'normative_time': '{0:0>2}:{1:0>2}'.format(machine.normative_time.hour, machine.normative_time.minute),
                  'normative_speed': machine.normative_speed,
                  'normative_product': machine.normative_product,
-                 'present_time': value.create_work_time_hm(),
-                 'present_speed': value.create_speed(),
-                 'present_product': value.create_length_km(),
-                 'kmt': value.create_kmt()}
+                 'present_time': Value.create_work_time_hm_in_party(register=machine.register),
+                 'present_speed': Value.create_speed_in_party(register=machine.register),
+                 'present_product': Value.create_length_km_in_party(register=machine.register),
+                 'kmt': Value.create_kmt_in_party(register=machine.register)}
             ms.append(m)
         except IndexError:
             pass

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Folder, File
-from .models import Value, Date, Machine, ValueChange, ComPort
+from .models import Value, Date,Party, Machine, ValueChange, ComPort
 
 
 class FileAdmin(admin.ModelAdmin):
@@ -41,4 +41,5 @@ admin.site.register(ComPort, ComPortAdmin)
 admin.site.register(Value, ValueAdmin)
 admin.site.register(ValueChange, ValueChageAdmin)
 admin.site.register(Date)
+admin.site.register(Party)
 admin.site.register(Machine, MachineAdmin)
