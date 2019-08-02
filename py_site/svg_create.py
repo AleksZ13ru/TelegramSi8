@@ -1,6 +1,9 @@
 # import svgwrite
 from si8_parsing.code.pack import min_to_time
-
+from si8_parsing.models import Party
+from django.utils import timezone
+import datetime
+from django.core.exceptions import ObjectDoesNotExist
 # dwg = svgwrite.Drawing('svgwrite-example.svg', profile='tiny', size=(200, 20))
 
 # draw a red box
@@ -66,6 +69,10 @@ input_dates = [5.0, 5.1, 5.0, 5.0, 5.1, 5.0, 5.0, 5.1, 5.0, 5.0, 5.0, 5.1, 5.0, 
 
 
 # svg_text_full = svg_text_start + svg_text_rect + svg_text_stop
+def addMinute(tm, minutes):
+    fulldate = datetime.datetime(100, 1, 1, tm.hour, tm.minute, tm.second)
+    fulldate = fulldate + datetime.timedelta(minutes=minutes)
+    return fulldate.time()
 
 
 def rect_create(x, title, color):
@@ -74,7 +81,30 @@ def rect_create(x, title, color):
     return result
 
 
-def svg_text_create(values=input_dates, party=0, next_values=None):
+TIME_FORMAT = '%H:%M'
+
+
+def svg_text_create(values=None, party=0, next_values=None):
+    svg_text_rects = ''
+    try:
+        p = Party.objects.get(index=party)
+        j = 0
+        for i in values:
+            color = color_100
+            if i > 0.0:
+                color = color_500
+            title = '{0} - {1}'.format(addMinute(p.time_start, j).strftime(TIME_FORMAT), i)
+            svg_text_rects = svg_text_rects + rect_create(x=j, title=title, color=color)
+            j = j + 1
+
+        svg_text_full = svg_text_start + svg_text_rects + svg_text_stop
+        return svg_text_full
+    except ObjectDoesNotExist:
+        return svg_pure()
+
+
+# TODO: удалить!
+def svg_text_create0(values=None, party=0, next_values=None):
     svg_text_rects = ''
     j = 0
     for i in values:
@@ -142,5 +172,3 @@ def svg_file_create():
     f.write(svg_text_create())
     f.close()
 
-
-svg_file_create()

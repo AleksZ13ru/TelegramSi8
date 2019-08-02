@@ -116,9 +116,11 @@ class Value(models.Model):
     def create_kmt(self):
         return round((len(self.value) - self.value.count(0)) / len(self.value), 2)
 
-    @staticmethod
+    @staticmethod  # -> get_in_party
     def create_kmt_in_party(register=None, date_now=timezone.now(), party=None):
         value = Value.get_in_party(register=register, date_now=date_now, party=party)
+        if len(value) is 0:
+            return round(0.00, 2)
         return round((len(value) - value.count(0)) / len(value), 2)
 
     def create_length_km(self):
@@ -128,7 +130,7 @@ class Value(models.Model):
                 length = length + s
         return round(length / 1000, 2)
 
-    @staticmethod
+    @staticmethod  # -> get_in_party
     def create_length_km_in_party(register=None, date_now=timezone.now(), party=None):
         value = Value.get_in_party(register=register, date_now=date_now, party=party)
         length = 0
@@ -149,7 +151,7 @@ class Value(models.Model):
             speed = round(length / work_time, 2)
         return speed
 
-    @staticmethod
+    @staticmethod  # -> get_in_party
     def create_speed_in_party(register=None, date_now=timezone.now(), party=None):
         value = Value.get_in_party(register=register, date_now=date_now, party=party)
         length = 0
@@ -171,7 +173,7 @@ class Value(models.Model):
         work_time_hm = '{0:0>2}:{1:0>2}'.format(work_time // 60, work_time % 60)
         return work_time_hm
 
-    @staticmethod
+    @staticmethod  # -> get_in_party
     def create_work_time_hm_in_party(register=None, date_now=timezone.now(), party=None):
         value = Value.get_in_party(register=register, date_now=date_now, party=party)
         work_time = 0
@@ -266,30 +268,34 @@ class Value(models.Model):
     @staticmethod  # TODO: определится с поведением на неправильный регистр
     # TODO: обработать случай смена№2, в первый день массив заканчивается раньше 00:00 (1440 элементов)
     def get_in_time(register=None, date_now=timezone.now(), time_start=None, time_end=None):
-        value = Value.objects.get(register=register, date__date=date_now)
-        if time_start is not None and time_end is not None:
-            minute_start = time_start.hour * 60 + time_start.minute
-            minute_end = time_end.hour * 60 + time_end.minute+1
-            if minute_end <= minute_start:
-                v = value.value[minute_start:]
-                try:
-                    value_next_day = Value.objects.get(register=register, date__date=date_now.replace(day=date_now.day+1))
-                    v.extend(value_next_day.value[0:minute_end])
-                except ObjectDoesNotExist:
-                    pass
-                return v
+        try:
+            value = Value.objects.get(register=register, date__date=date_now)
+            if time_start is not None and time_end is not None:
+                minute_start = time_start.hour * 60 + time_start.minute
+                minute_end = time_end.hour * 60 + time_end.minute+1
+                if minute_end-1 <= minute_start:
+                    v = value.value[minute_start:]
+                    try:
+                        value_next_day = Value.objects.get(register=register, date__date=date_now.replace(day=date_now.day+1))
+                        v.extend(value_next_day.value[0:minute_end])
+                    except ObjectDoesNotExist:
+                        pass
+                    return v
+                else:
+                    return value.value[minute_start:minute_end]
             else:
-                return value.value[minute_start:minute_end]
-        else:
-            return value.value
+                return value.value
+        except ObjectDoesNotExist:
+            return []
 
-    @staticmethod
+    @staticmethod  # -> get_in_time
     def get_in_party(register=None, date_now=timezone.now(), party=None):
-        if party is not None:
+        try:
             p = Party.objects.get(index=party)
             return Value.get_in_time(register=register, date_now=date_now, time_start=p.time_start, time_end=p.time_end)
-        else:
+        except ObjectDoesNotExist:
             return Value.get_in_time(register=register, date_now=date_now)
+
 
     @staticmethod
     def add_in_com_port(register, date_now=None, meaning=0):

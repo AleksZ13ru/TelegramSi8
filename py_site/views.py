@@ -18,7 +18,8 @@ def django(request):
 # 2.1 - title - название оборудования
 # 2.2 - value - массив скорости
 
-def notes_b(request):
+#TODO Удалить
+def notes_b0(request):
     current_date = timezone.now().strftime(DB_DATE_FORMAT)
     machines = Machine.objects.all()
     ms = []
@@ -40,18 +41,64 @@ def notes_b(request):
     return render(request, 'py_site/notes_b.html', context)
 
 
-def report(request):
+def notes_b(request):
     current_date = timezone.now().strftime(DB_DATE_FORMAT)
-    machines = Machine.objects.all()
+    machines = Machine.objects.filter(enable=True)
     ms = []
     for machine in machines:
+        # value = Value.objects.filter(register=machine.register)[0].value
         try:
             d = Date.objects.get(date=timezone.now())
         except Date.DoesNotExist:
             d = Date(date=timezone.now())
             d.save()
         try:
-            value = Value.objects.get(register=machine.register, date=d.id)
+            # value = Value.objects.get(register=machine.register, date=d.id)
+            value = Value.get_in_party(register=machine.register)
+            svg = svg_text_create(value)
+            m = {'title': machine.title, 'value': svg, 'kmt': Value.create_kmt_in_party(register=machine.register)}
+            ms.append(m)
+        except IndexError:
+            svg = svg_pure()
+    context = {'current_date': current_date, 'machines': ms}
+    return render(request, 'py_site/notes_b.html', context)
+
+
+def machine_filter(request, filter, party, year, month, day):
+    current_date = timezone.datetime(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
+    if filter is 0:
+        machines = Machine.objects.filter(enable=True)
+    else:
+        machines = Machine.objects.filter(enable=True, pk=filter)
+    ms = []
+    for machine in machines:
+        # value = Value.objects.filter(register=machine.register)[0].value
+        try:
+            # value = Value.objects.get(register=machine.register, date=d.id)
+            value = Value.get_in_party(register=machine.register,
+                                       date_now=timezone.datetime(year=year, month=month, day=day),
+                                       party=party)
+            svg = svg_text_create(values=value, party=party)
+            m = {'title': machine.title, 'value': svg, 'kmt': Value.create_kmt_in_party(register=machine.register)}
+            ms.append(m)
+        except IndexError:
+            svg = svg_pure()
+    context = {'current_date': current_date, 'machines': ms}
+    return render(request, 'py_site/notes_b.html', context)
+
+
+def report(request):
+    current_date = timezone.now().strftime(DB_DATE_FORMAT)
+    machines = Machine.objects.all()
+    ms = []
+    for machine in machines:
+        # try:
+        #     d = Date.objects.get(date=timezone.now())
+        # except Date.DoesNotExist:
+        #     d = Date(date=timezone.now())
+        #     d.save()
+        try:
+            # value = Value.objects.get(register=machine.register, date=d.id)
             # svg = svg_text_create(value)
             m = {'title': machine.title,
                  'normative_time': '{0:0>2}:{1:0>2}'.format(machine.normative_time.hour, machine.normative_time.minute),
@@ -69,6 +116,48 @@ def report(request):
 
 
 def report_history(request, filter, party, year, month, day):
+    current_date = timezone.now().replace(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
+    if filter is 0:
+        machines = Machine.objects.filter(enable=True)
+    else:
+        machines = Machine.objects.filter(enable=True, pk=filter)
+    ms = []
+    for machine in machines:
+        # try:
+        #     d = Date.objects.get(date=timezone.now())
+        # except Date.DoesNotExist:
+        #     d = Date(date=timezone.now())
+        #     d.save()
+        try:
+            # value = Value.objects.get(register=machine.register, date=d.id)
+            # svg = svg_text_create(value)
+            m = {'title': machine.title,
+                 'normative_time': '{0:0>2}:{1:0>2}'.format(machine.normative_time.hour, machine.normative_time.minute),
+                 'normative_speed': machine.normative_speed,
+                 'normative_product': machine.normative_product,
+                 'present_time': Value.create_work_time_hm_in_party(register=machine.register,
+                                                                    date_now=timezone.datetime(year=year, month=month,
+                                                                                               day=day),
+                                                                    party=party),
+                 'present_speed': Value.create_speed_in_party(register=machine.register,
+                                                              date_now=timezone.datetime(year=year, month=month,
+                                                                                         day=day),
+                                                              party=party),
+                 'present_product': Value.create_length_km_in_party(register=machine.register,
+                                                                    date_now=timezone.datetime(year=year, month=month,
+                                                                                               day=day),
+                                                                    party=party),
+                 'kmt': Value.create_kmt_in_party(register=machine.register,
+                                                  date_now=timezone.datetime(year=year, month=month, day=day),
+                                                  party=party)}
+            ms.append(m)
+        except IndexError:
+            pass
+    context = {'current_date': current_date, 'machines': ms}
+    return render(request, 'py_site/report.html', context)
+
+
+def report_history0(request, filter, party, year, month, day):
     current_date = timezone.now().replace(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
     if filter is 0:
         machines = Machine.objects.all()
@@ -122,7 +211,7 @@ def report_history(request, filter, party, year, month, day):
     return render(request, 'py_site/report.html', context)
 
 
-def machine_filter(request, filter, party, year, month, day):
+def machine_filter0(request, filter, party, year, month, day):
     current_date = timezone.now().replace(year=year, month=month, day=day).strftime(DB_DATE_FORMAT)
     if filter is 0:
         machines = Machine.objects.all()
