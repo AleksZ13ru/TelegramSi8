@@ -18,7 +18,7 @@ def django(request):
 # 2.1 - title - название оборудования
 # 2.2 - value - массив скорости
 
-#TODO Удалить
+# TODO Удалить
 def notes_b0(request):
     current_date = timezone.now().strftime(DB_DATE_FORMAT)
     machines = Machine.objects.all()
@@ -60,7 +60,7 @@ def notes_b(request):
             ms.append(m)
         except IndexError:
             svg = svg_pure()
-    context = {'current_date': current_date, 'machines': ms}
+    context = {'current_date': current_date, 'party': 3, 'machines': ms}
     return render(request, 'py_site/notes_b.html', context)
 
 
@@ -83,7 +83,7 @@ def machine_filter(request, filter, party, year, month, day):
             ms.append(m)
         except IndexError:
             svg = svg_pure()
-    context = {'current_date': current_date, 'machines': ms}
+    context = {'current_date': current_date, 'party': party, 'machines': ms}
     return render(request, 'py_site/notes_b.html', context)
 
 
@@ -111,7 +111,7 @@ def report(request):
             ms.append(m)
         except IndexError:
             pass
-    context = {'current_date': current_date, 'machines': ms}
+    context = {'current_date': current_date, 'party': 3, 'machines': ms}
     return render(request, 'py_site/report.html', context)
 
 
@@ -153,7 +153,7 @@ def report_history(request, filter, party, year, month, day):
             ms.append(m)
         except IndexError:
             pass
-    context = {'current_date': current_date, 'machines': ms}
+    context = {'current_date': current_date, 'party': party, 'machines': ms}
     return render(request, 'py_site/report.html', context)
 
 
@@ -180,7 +180,7 @@ def report_history0(request, filter, party, year, month, day):
         # TODO:  переправить filter на get запрос
         # TODO:  kmt и подобные запросы перенести в модель
         if party is 2:
-            next_d = Date.objects.get(date=timezone.datetime(year=year, month=month, day=day+1))
+            next_d = Date.objects.get(date=timezone.datetime(year=year, month=month, day=day + 1))
         try:
             value = Value.objects.filter(register=machine.register, date=d.id)[0].value
             v = value
