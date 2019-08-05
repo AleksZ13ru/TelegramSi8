@@ -54,9 +54,10 @@ def notes_b(request):
             d.save()
         try:
             # value = Value.objects.get(register=machine.register, date=d.id)
-            value = Value.get_in_party(register=machine.register)
-            svg = svg_text_create(value)
-            m = {'title': machine.title, 'value': svg, 'kmt': Value.create_kmt_in_party(register=machine.register)}
+            value = Value.get_in_party(register=machine.register, party=3)
+            svg = svg_text_create(values=value, party=3)
+            m = {'title': machine.title, 'value': svg, 'kmt': Value.create_kmt_in_party(register=machine.register,
+                                                                                        party=3)}
             ms.append(m)
         except IndexError:
             svg = svg_pure()
@@ -104,10 +105,10 @@ def report(request):
                  'normative_time': '{0:0>2}:{1:0>2}'.format(machine.normative_time.hour, machine.normative_time.minute),
                  'normative_speed': machine.normative_speed,
                  'normative_product': machine.normative_product,
-                 'present_time': Value.create_work_time_hm_in_party(register=machine.register),
-                 'present_speed': Value.create_speed_in_party(register=machine.register),
-                 'present_product': Value.create_length_km_in_party(register=machine.register),
-                 'kmt': Value.create_kmt_in_party(register=machine.register)}
+                 'present_time': Value.create_work_time_hm_in_party(register=machine.register, party=3),
+                 'present_speed': Value.create_speed_in_party(register=machine.register, party=3),
+                 'present_product': Value.create_length_km_in_party(register=machine.register, party=3),
+                 'kmt': Value.create_kmt_in_party(register=machine.register, party=3)}
             ms.append(m)
         except IndexError:
             pass
