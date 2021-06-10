@@ -1,4 +1,4 @@
-Django==2.0.3
+Django==2.2.24
 requests==2.18.4
 telepot==12.6
 viberbot==1.0.11
