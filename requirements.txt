@@ -2,7 +2,7 @@ Django==2.0.3
 requests==2.18.4
 telepot==12.6
 viberbot==1.0.11
-celery==4.1.0
+celery==5.2.2
 psycopg2>=2.7.4
 sqlalchemy==1.2.7
 pyserial==3.4
